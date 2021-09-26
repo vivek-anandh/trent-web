@@ -1,15 +1,38 @@
 <!DOCTYPE html>
 <html ng-app="TrentAngularApp">
-<head>
-    <meta charset="utf-8" />
-	  <title>Trent Web - V1.1 26092021</title>
-    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
-	  <script type="text/javascript" src="./TrentAngularController.js"></script>
-	  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous">
-	  <link href="./TrentCSS.css" rel="stylesheet">
-	  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-/bQdsTh/da6pkI1MST/rWKFNjaCP5gBSY4sEBT38Q/9RBh9AH40zEOg7Hlq2THRZ" crossorigin="anonymous"></script>	
-</head>
+	<head>
+		<meta charset="utf-8" />
+		<title>Trent v100</title>
+		<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+		<script type="text/javascript" src="./PortfolioManager.js"></script>
+		<script type="text/javascript" src="./TrentAngularController.js"></script>
+		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous">
+		<link href="./TrentCSS.css" rel="stylesheet">
+		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-/bQdsTh/da6pkI1MST/rWKFNjaCP5gBSY4sEBT38Q/9RBh9AH40zEOg7Hlq2THRZ" crossorigin="anonymous"></script>	
+	</head>
 
-  <body ng-controller="TrentAngularAppController" class="bg-trent" style="margin:10px">
-  </body>
-</html>  
+	<body ng-controller="TrentAngularAppController" class="bg-trent" style="margin:10px">		
+		<h1>Funds Dashboard</h1>	
+		<hr/>
+			<h3 class="font-bold3">
+				<span class="label">Today</span> <span class="{{numberClass(data.totals.previousValueP)}}">{{data.totals.previousValue | currency : '₹': 0 }} <span class="text-sm">{{data.totals.previousValueP | number : 2}}%</span></span>
+				&nbsp;
+				<span class="label">Net Value</span> <span class="{{numberClass(data.totals.netP)}}">{{data.totals.value | currency : '₹': 0 }} <span class="text-sm">{{data.totals.netP | number : 2}}%</span></span>
+			</h3>
+		<hr/>
+		<div class="row">
+			<div ng-repeat="fund in data.funds" class="col-sm">
+				<div class="card bg-white card-shadow bg-card-font mb-5" style="max-width: 18rem;">
+				  <div class="card-body">
+					<p class="font-bold1">{{fund.name}}</p>
+					<h5 class="font-bold3 ">{{fund.value | currency : '₹': 0}} <span class="text-sm {{numberClass(fund.netP)}}">{{fund.netP | number : 2 }}%</span></h5>
+					<h5 class="font-bold2 {{numberClass(fund.previousValueP)}}">{{fund.previousValue | currency : '₹': 0}} <span class="text-sm {{numberClass(fund.previousValueP)}}">{{fund.previousValueP | number : 2 }}%</span></h5>
+					<span class="text-xxs" style="text-align:right">{{formatDate(fund.latestNavDt)}}</span>
+				  </div>
+				</div>
+			</div>	
+		</div>	
+		<hr/>
+	</body>
+</html>
+
