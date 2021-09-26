@@ -1,0 +1,43 @@
+
+body{
+	color: #47788E; 
+}
+
+.label{
+	color: black; 
+	font-weight: 700!important; 
+}
+.font-bold1{
+	font-weight: 600!important; 
+}
+
+.font-bold2{
+	font-weight: 700!important; 
+}
+
+.font-bold3{
+	font-weight: 800!important; 
+}
+
+.text-sm{
+	font-size: .875rem!important;
+}
+
+.text-xs{
+	font-size: .75rem!important;
+
+}
+
+.text-xxs{
+	font-size: .6rem!important;
+}
+
+.card-shadow {
+    box-shadow: 0 20px 27px 0 rgb(0 0 0 / 8%);
+	border-radius: 1rem;
+    border-top-left-radius: 1rem;
+    border-top-right-radius: 1rem;
+    border-bottom-right-radius: 1rem;
+    border-bottom-left-radius: 1rem;	
+}
+
