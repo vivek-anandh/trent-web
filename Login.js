@@ -61,7 +61,7 @@ e.read=function(t,e,r,n,i){var o,s,a=8*i-n-1,u=(1<<a)-1,c=u>>1,f=-7,h=r?i-1:0,l=
 	var initAuthFlow = function(){		
 		var url = window.location.href;
 		if(url.indexOf('?') != -1) {
-			url = url.substring(0, url.index.Of('?')); 	
+			url = url.substring(0, url.indexOf('?')); 	
 		}
 		var settings = {};
 		settings.client_id = "2tegq8gghd0donvoa9q622e0n5";
