@@ -69,7 +69,7 @@ e.read=function(t,e,r,n,i){var o,s,a=8*i-n-1,u=(1<<a)-1,c=u>>1,f=-7,h=r?i-1:0,l=
 		settings.redirect_uri = url;
 		settings.post_logout_redirect_uri= url;
 		settings.response_type= 'code';
-		settings.scope= 'openid';
+		settings.scope= 'openid, all-api/api';
 		settings.automaticSilentRenew=true;
 		settings.filterProtocolClaims= false;
 		settings.loadUserInfo= false;
