@@ -45,7 +45,7 @@
 				
 				var api  = "https://49l6pwddid.execute-api.ap-south-1.amazonaws.com/UAT/funds"; 
 				request.open("GET", api);
-				request.setRequestHeader("Authorization", "Bearer " + token);
+				request.setRequestHeader("Authorization", "Bearer " + "eyJraWQiOiI2VkhPbnRRS3I5a2tsYjZHRTlseWFKUXlFZjVOdm9yTG9zRFRIYU1MSHVjPSIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiIxdjFvN3QyYmExdjNhaWplN2dzajR0NzlqdCIsInRva2VuX3VzZSI6ImFjY2VzcyIsInNjb3BlIjoiYWxsLWFwaVwvYXBpIiwiYXV0aF90aW1lIjoxNjMyNjUwODMwLCJpc3MiOiJodHRwczpcL1wvY29nbml0by1pZHAuYXAtc291dGgtMS5hbWF6b25hd3MuY29tXC9hcC1zb3V0aC0xX0JKdExSUTMwNiIsImV4cCI6MTYzMjczNzE3MCwiaWF0IjoxNjMyNjUwODMwLCJ2ZXJzaW9uIjoyLCJqdGkiOiI2ODYzZTJjZi02NjczLTQ1OTMtYmYwYy0zNmY5MTk5NjdiY2EiLCJjbGllbnRfaWQiOiIxdjFvN3QyYmExdjNhaWplN2dzajR0NzlqdCJ9.ltXRuksEwR3yK0i2gHq1P2oLsqcAtYEByomQ0lsEMb2At-tl5QAiwFtqdkc_VwF2KS-s3wcigKaZ0RBR6AZnzpjGzrhCS9ZuO01GkVn2bX50-t-lCDJvPsuWVJvkSg6Jx-m4JAzn--C-Ddc2ZhqL4CjHarkp8sRCJVK5iCpp-cIIyrsD9EY1Hfwea89b4pxkPON_q6NnIiJXX6b6ZwA11loKvrBSYlhs7WL6Gmo8cHmGFAYV2G1UHPxsJ4E-przI-R3iZ7Tiq5jeuVK2GmirOOjfyA6geVwLuZMl8MwwO4LXF946bP6657R5IlsOoSIUkdOj__j_SVSOmPPfldtxpw");
 				request.setRequestHeader("X-API-KEY", "CcVLdqEx0s2MR4bsnnIQ19p4mMc1a5ai48HuwZVD")
 
 				// Defining event listener for readystatechange event
