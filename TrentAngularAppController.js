@@ -3,7 +3,7 @@
 
 	var app = angular.module('TrentAngularApp', []);
 	app.controller('TrentAngularAppController', ['$scope', '$filter', '$q', function($scope, $filter, $q) {
-	var prodMode = false;	
+	var prodMode = true;	
 
 
 
