@@ -2,7 +2,7 @@
 <html ng-app="TrentAngularApp">
 	<head>
 		<meta charset="utf-8" />
-		<title>Trent v1.1 27092021</title>
+		<title>Trent v2.0 14012022</title>
 		<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
 		<script type="text/javascript" src="./Login.js"></script>
 		<script type="text/javascript" src="./PortfolioManager.js"></script>
@@ -18,12 +18,16 @@
 			<h3 class="font-bold3">
 				<span class="label">Today</span> <span class="{{numberClass(data.totals.previousValueP)}}">{{data.totals.previousValue | currency : '₹': 0 }} <span class="text-sm">{{data.totals.previousValueP | number : 2}}%</span></span>
 				&nbsp;
-				<span class="label">Net Value</span> <span class="{{numberClass(data.totals.netP)}}">{{data.totals.value | currency : '₹': 0 }} <span class="text-sm">{{data.totals.netP | number : 2}}%</span></span>
+				<span class="label">Value</span> <span class="{{numberClass(data.totals.netP)}}">{{data.totals.value | currency : '₹': 0 }} <span class="text-sm">{{data.totals.netP | number : 2}}%</span></span>
+				&nbsp;
+				<span class="label">Investment</span> <span>{{data.totals.investment | currency : '₹': 0 }}</span>
+				&nbsp;
+				<span class="label">Net</span> <span class="{{numberClass(data.totals.netP)}}">{{data.totals.net | currency : '₹': 0 }}</span>
 			</h3>
 		<hr/>
 		<div class="row">
 			<div ng-repeat="fund in data.funds" class="col-sm">
-				<div class="card bg-white card-shadow bg-card-font mb-5" style="max-width: 18rem;">
+				<div class="card bg-white card-shadow bg-card-font mb-5" style="max-width: 18rem;" ng-click="showFundDtl(fund)">
 				  <div class="card-body">
 					<p class="font-bold1">{{fund.name}}</p>
 					<h5 class="font-bold3 ">{{fund.value | currency : '₹': 0}} <span class="text-sm {{numberClass(fund.netP)}}">{{fund.netP | number : 2 }}%</span></h5>
@@ -32,8 +36,84 @@
 				  </div>
 				</div>
 			</div>	
-		</div>	
+		</div>
+		<hr/>
+		<div ng-if="fundDtl && fundDtl.isActive" class="row">
+			<p class="font-bold1">{{fundDtl.name}}</p>
+			<h5 class="font-bold3 ">
+				Investment: {{fundDtl.investment | currency : '₹': 0}}  <span class="text-sm {{numberClass(fundDtl.netP)}}">{{fundDtl.value | number : 0 }}</span>
+				&nbsp;&nbsp;&nbsp;
+				Current Value: {{fundDtl.net | currency : '₹': 0}}  <span class="text-sm {{numberClass(fundDtl.netP)}}">{{fundDtl.netP | number : 2 }}%</span>				
+				<span class="text-xs" style="text-align:left">NAV {{fundDtl.latestNav}} as on {{formatDate(fundDtl.latestNavDt)}}</span>
+			</h5>
+			<div>
+				<div class="row border font-bold3">
+					<div class="col">
+						Date
+					</div>	
+					<div class="col">
+						Qty/Price
+					</div>	
+					<div class="col">
+						Investment
+					</div>
+					<div class="col {{numberClass(fundDtl.netP)}}" >		
+						Value
+					</div>	
+					<div class="col {{numberClass(fundDtl.netP)}}" >		
+						Profit
+					</div>	
+					<div class="col {{numberClass(fundDtl.previousValueP)}}" >		
+						Today
+					</div>	
+				</div>
+			</div>
+			<div ng-repeat="item in fundDtl.portfolio">
+				<div class="row border">
+					<div class="col">
+						{{item.date | date}}
+					</div>	
+					<div class="col">
+						{{item.quantity | number: 3}}<br>
+						<span class="text-sm">{{item.price | number : 3 }}</span>
+					</div>	
+					<div class="col">
+						{{item.investment | currency : '₹' : 0}}
+					</div>
+					<div class="col {{numberClass(fundDtl.netP)}}" >		
+						{{item.value | currency : '₹' : 0 }} <br>
+					</div>	
+					<div class="col {{numberClass(fundDtl.netP)}}" >		
+						{{item.net | currency : '₹' : 0 }} <br>
+						<span class="{{numberClass(fundDtl.netP)}}">{{item.netP | number : 2 }}%</span>
+					</div>	
+					<div class="col {{numberClass(fundDtl.previousValueP)}}" >		
+						{{item.previousValue | currency : '₹' : 0 }} <br>
+						<span class="{{numberClass(fundDtl.previousValueP)}}">{{item.previousValueP | number : 2 }}%</span>
+					</div>	
+				</div>
+			</div>
+				<div class="row border font-bold3">
+					<div class="col">
+						Summary
+					</div>	
+					<div class="col">
+						&nbsp;
+					</div>	
+					<div class="col">
+						{{fundDtl.investment | currency : '₹': 0}}
+					</div>
+					<div class="col {{numberClass(fundDtl.netP)}}" >		
+						{{fundDtl.value | currency : '₹' : 0 }}
+					</div>	
+					<div class="col {{numberClass(fundDtl.netP)}}" >		
+						{{fundDtl.net | currency : '₹' : 0 }}
+					</div>	
+					<div class="col {{numberClass(fundDtl.previousValueP)}}" >		
+						{{fundDtl.previousValue | currency : '₹' : 0 }}
+					</div>	
+				</div>			
+		</div>		
 		<hr/>
 	</body>
 </html>
-
