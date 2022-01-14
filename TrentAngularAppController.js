@@ -3,7 +3,7 @@
 
 	var app = angular.module('TrentAngularApp', []);
 	app.controller('TrentAngularAppController', ['$scope', '$filter', '$q', function($scope, $filter, $q) {
-		
+	var prodMode = false;	
 
 
 
@@ -43,11 +43,16 @@
 				// Creating the XMLHttpRequest object
 				var request = new XMLHttpRequest();
 				
-				var api  = "https://49l6pwddid.execute-api.ap-south-1.amazonaws.com/UAT/funds"; 
+				var api = "api.json";
+				if(prodMode){
+					api  = "https://49l6pwddid.execute-api.ap-south-1.amazonaws.com/UAT/funds"; 					
+				}
 				request.open("GET", api);
-				request.setRequestHeader("Authorization", "Bearer " + token);
-				request.setRequestHeader("X-API-KEY", "CcVLdqEx0s2MR4bsnnIQ19p4mMc1a5ai48HuwZVD")
-
+				
+				if(prodMode){
+					request.setRequestHeader("Authorization", "Bearer " + token);
+					request.setRequestHeader("X-API-KEY", "CcVLdqEx0s2MR4bsnnIQ19p4mMc1a5ai48HuwZVD")
+				}
 				// Defining event listener for readystatechange event
 				request.onreadystatechange = function() {
 					// Check if the request is compete and was successful
@@ -76,9 +81,14 @@
 	};
 
 	$scope.signInAndLoadScreen = function () {
-		initAuthFlow().then(function(response) {
-			$scope.getAllData(response.access_token);
-		});	
+		if(prodMode) {
+			initAuthFlow().then(function(response) {
+				$scope.getAllData(response.access_token);
+			});	
+		}
+		else{
+			$scope.getAllData();
+		}
 	};
 	
 	$scope.signInAndLoadScreen();
@@ -153,6 +163,10 @@
 				return 'Dec';
 		}
 		return monthStr;
+	};
+	
+	$scope.showFundDtl = function (fund){
+		$scope.fundDtl = fund;
 	};
 
 
