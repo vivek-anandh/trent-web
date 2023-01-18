@@ -88,7 +88,7 @@
 						<span class="{{numberClass(fundDtl.netP)}}">{{item.netP | number : 2 }}%</span>
 					</div>	
 					<div class="col {{numberClass(fundDtl.previousValueP)}}" >		
-						{{item.previousValue | currency : '₹' : 0 }} <br>
+						{{item.previousValue | currency : '₹' : 0 }} <span ng-if="item.investment < 0" >Sold</span>  <br>
 						<span class="{{numberClass(fundDtl.previousValueP)}}">{{item.previousValueP | number : 2 }}%</span>
 					</div>	
 				</div>
