@@ -56,8 +56,50 @@ function outputDecorator(data) {
     return response;
 }
 
+function sell(fund) {
+    //change transaction as sell
+    fund.transactions.forEach(function (transaction) {
+        if (transaction.quantity < 0) {
+            transaction.type = 'sell';
+        }
+    });
+
+
+
+    //sepearte as buy and sell
+    let sellRecords = [];
+    let buyRecords = [];
+
+    for (let i = 0; i < fund.portfolio.length; i++) {
+        if (fund.portfolio[i].quantity > 0) {
+            buyRecords.push(fund.portfolio[i]);
+        }
+        else {
+            sellRecords.push(fund.portfolio[i]);
+        }
+    }
+
+    for (let i = 0; i < sellRecords.length; i++) {
+        let sell = sellRecords[i];
+        for (let j = 0; j < buyRecords.length; j++) {
+            let buy = buyRecords[j];
+            if( buy.quantity > (sell.quantity * -1) ) {
+                buy.quantity += sell.quantity;
+                buy.quantity = Number(buy.quantity.toFixed(4));
+            }
+            else if(buy.quantity < (sell.quantity * -1)) {
+                buy.quantity = 0;
+            }
+            sell.quantity += buy.quantity;
+            sell.quantity = Number(sell.quantity.toFixed(4));
+        }
+    }
+}
+
+
 function calculateFund(fund, hist) {
     prepareHistData(hist);
+    sell(fund);
     if (fund.portfolio && hist.data.length > 0) {
         fund.investment = 0;
         fund.value = 0;
