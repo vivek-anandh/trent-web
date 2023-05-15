@@ -81,20 +81,23 @@ function sell(fund) {
 
     for (let i = 0; i < sellRecords.length; i++) {
         let sell = sellRecords[i];
-        for (let j = 0; j < buyRecords.length; j++) {
-            let buy = buyRecords[j];
-            if( buy.quantity > (sell.quantity * -1) ) {
-                buy.quantity += sell.quantity;
-                buy.quantity = Number(buy.quantity.toFixed(4));
-	        sell.quantity += 0;
-            }
-            else if(buy.quantity < (sell.quantity * -1)) {
-                buy.quantity = 0;
-	        sell.quantity += buy.quantity;
-	        sell.quantity = Number(sell.quantity.toFixed(4));
+        if (sell.quantity < 0) {
+            for (let j = 0; j < buyRecords.length; j++) {
+                let buy = buyRecords[j];
+                if (buy.quantity > (sell.quantity * -1)) {
+                    buy.quantity += sell.quantity;
+                    buy.quantity = Number(buy.quantity.toFixed(4));
+                    sell.quantity = 0;
+                }
+                else if (buy.quantity < (sell.quantity * -1)) {
+                    buy.quantity = 0;
+                    sell.quantity += buy.quantity;
+                    sell.quantity = Number(sell.quantity.toFixed(4));
+                }
             }
         }
     }
+
 }
 
 
