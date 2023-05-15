@@ -86,12 +86,14 @@ function sell(fund) {
             if( buy.quantity > (sell.quantity * -1) ) {
                 buy.quantity += sell.quantity;
                 buy.quantity = Number(buy.quantity.toFixed(4));
+	        sell.quantity += buy.quantity;
+	        sell.quantity = Number(sell.quantity.toFixed(4));
             }
             else if(buy.quantity < (sell.quantity * -1)) {
                 buy.quantity = 0;
+	        sell.quantity += buy.quantity;
+	        sell.quantity = Number(sell.quantity.toFixed(4));
             }
-            sell.quantity += buy.quantity;
-            sell.quantity = Number(sell.quantity.toFixed(4));
         }
     }
 }
