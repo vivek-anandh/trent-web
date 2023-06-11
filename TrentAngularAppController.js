@@ -45,7 +45,7 @@
 				
 				var api = "api.json";
 				if(prodMode){
-					api  = "https://49l6pwddid.execute-api.ap-south-1.amazonaws.com/UAT/funds"; 					
+					api  = "https://8ecbjv99ca.execute-api.ap-south-1.amazonaws.com/UAT/holdings"; 					
 				}
 				request.open("GET", api);
 				
