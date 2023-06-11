@@ -76,8 +76,8 @@
 		var promise = $scope.getAllDataPromise(token);
 		promise.then(function(response) {
 			var json = JSON.parse(response);
-			$scope.loadFundsData(json.body);
-        });		
+			$scope.loadFundsData(json.body ? json.body : json);
+        	});		
 	};
 
 	$scope.signInAndLoadScreen = function () {
