@@ -90,9 +90,9 @@ function sell(fund) {
                     sell.quantity = 0;
                 }
                 else if (buy.quantity < (sell.quantity * -1)) {
-                    buy.quantity = 0;
                     sell.quantity += buy.quantity;
                     sell.quantity = Number(sell.quantity.toFixed(4));
+                    buy.quantity = 0;
                 }
             }
         }
