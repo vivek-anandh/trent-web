@@ -43,7 +43,7 @@
 			<h5 class="font-bold3 ">
 				Investment: {{fundDtl.investment | currency : '₹': 0}}  <span class="text-sm {{numberClass(fundDtl.netP)}}">{{fundDtl.value | number : 0 }}</span>
 				&nbsp;&nbsp;&nbsp;
-				Current Value: {{fundDtl.net | currency : '₹': 0}}  <span class="text-sm {{numberClass(fundDtl.netP)}}">{{fundDtl.netP | number : 2 }}%</span>				
+				Profit: {{fundDtl.net | currency : '₹': 0}}  <span class="text-sm {{numberClass(fundDtl.netP)}}">{{fundDtl.netP | number : 2 }}%</span>				
 				<span class="text-xs" style="text-align:left">NAV {{fundDtl.latestNav}} as on {{formatDate(fundDtl.latestNavDt)}}</span>
 			</h5>
 			<div>
