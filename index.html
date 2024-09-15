@@ -41,9 +41,11 @@
 		<div ng-if="fundDtl && fundDtl.isActive" class="row">
 			<p class="font-bold1">{{fundDtl.name}}</p>
 			<h5 class="font-bold3 ">
-				Investment: {{fundDtl.investment | currency : '₹': 0}}  <span class="text-sm {{numberClass(fundDtl.netP)}}">{{fundDtl.value | number : 0 }}</span>
+				Investment: {{fundDtl.investment | currency : '₹': 0}}  
 				&nbsp;&nbsp;&nbsp;
-				Profit: {{fundDtl.net | currency : '₹': 0}}  <span class="text-sm {{numberClass(fundDtl.netP)}}">{{fundDtl.netP | number : 2 }}%</span>				
+				Value: <span class="{{numberClass(fundDtl.netP)}}">{{fundDtl.value | number : 0 }}</span>
+				&nbsp;&nbsp;&nbsp;
+				Profit: <span class="{{numberClass(fundDtl.netP)}}">{{fundDtl.net | currency : '₹': 0}}  <span class="text-sm ">{{fundDtl.netP | number : 2 }}%</span></span>				
 				<span class="text-xs" style="text-align:left">NAV {{fundDtl.latestNav}} as on {{formatDate(fundDtl.latestNavDt)}}</span>
 			</h5>
 			<div>
