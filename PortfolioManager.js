@@ -84,7 +84,7 @@ function sell(fund) {
         if (sell.quantity < 0) {
             for (let j = 0; j < buyRecords.length; j++) {
                 let buy = buyRecords[j];
-                if (buy.quantity > (sell.quantity * -1)) {
+                if (buy.quantity >= (sell.quantity * -1)) {
                     buy.quantity += sell.quantity;
                     buy.quantity = Number(buy.quantity.toFixed(4));
                     sell.quantity = 0;
