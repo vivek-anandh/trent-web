@@ -179,6 +179,10 @@ function calculateFundHist(item, hist) {
         Object.keys(refDates).forEach(function (ref) {
             calculateFundHistNav(item, hist.data[i], refDates, ref);
         });
+	if(!item.previousValue && item.date.getTime() == hist.data[0].date.getTime()) {
+		item.previousValue = item.value;
+	}
+	    
     }
 }
 
