@@ -5,9 +5,15 @@ function initaializePortfolioPromise(data) {
         let fundIds = [];
         let fundHist = {};
         Object.keys(data).forEach(function (fundId) {
-            fundIds.push(fundId);
+		if(isValidQuantity(data[fundId])){
+			fundIds.push(fundId);
+		}
+		else {
+			delete data[fundId];
+		}
         });
-        let requests = fundIds.map(fundId => navHistPromise(fundId, fundHist));
+
+	let requests = fundIds.map(fundId => navHistPromise(fundId, fundHist));
 
 
         Promise.all(requests)
@@ -19,6 +25,21 @@ function initaializePortfolioPromise(data) {
             })
             .catch(error => reject('Error while fectching latest NAV history' + error));
     });
+}
+
+function isValidQuantity(fund){
+	if(fund.transactions && fund.transactions.length > 0) {
+		fund.transactions.sort((a, b) => { return b.date - a.date; });
+	}
+	if(fund.portfolio && fund.portfolio.length > 0) {
+		fund.portfolio.sort((a, b) => { return b.date - a.date; });
+		var quantity = 0;
+		fund.portfolio.forEach(function (item) {
+			quantity += item.quantity;
+		});
+		return quantity > 1;
+	}
+	return false;
 }
 
 
