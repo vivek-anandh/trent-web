@@ -4,6 +4,15 @@ var accessToken  = '';
 // TrentAngularAppController.js or new app.js
 var app = angular.module('TrentAngularApp', ['ngRoute']);
 
+function getDateString(date){
+	return (date instanceof Date)
+                ? d.getFullYear() + '-' +
+                  ('0' + (d.getMonth() + 1)).slice(-2) + '-' +
+                  ('0' + d.getDate()).slice(-2)
+                : date
+}
+
+
 app.config(['$routeProvider', function($routeProvider) {
     $routeProvider
         .when('/', {
@@ -77,7 +86,7 @@ app.controller('MaintainBookController', ['$scope', '$http', '$q', function($sco
             })
             .then(function (response) {
                 // If API returns { body: [...] }
-                $scope.books = response.data.body ? response.data.body : response.data;
+                $scope.books = response.data && response.data.funds ? response.data.funds.Items : [];
             }, function (error) {
                 alert("Failed to load books from API.");
                 $scope.books = [];
@@ -89,18 +98,15 @@ app.controller('MaintainBookController', ['$scope', '$http', '$q', function($sco
 
     // Filter function for ng-repeat
     $scope.bookFilter = function(book) {
-        var match = true;
+        $scope.currentPage = 1;
+		var match = true;
         if ($scope.filter.fundId) {
             match = match && (book.fundId == $scope.filter.fundId);
         }
         if ($scope.filter.date) {
             // Convert JS Date object to YYYY-MM-DD string
             var d = $scope.filter.date;
-            var dateStr = (d instanceof Date)
-                ? d.getFullYear() + '-' +
-                  ('0' + (d.getMonth() + 1)).slice(-2) + '-' +
-                  ('0' + d.getDate()).slice(-2)
-                : $scope.filter.date;
+            var dateStr = getDateString(d);
             match = match && (book.date == dateStr);
         }
         return match;
@@ -132,9 +138,18 @@ app.controller('MaintainBookController', ['$scope', '$http', '$q', function($sco
     };
 
     // Save after edit
-    $scope.saveBook = function(book) {
+    $scope.saveBook = function(book, delFlag) {
         if (window.prodMode) {
-            $http.post("https://8ecbjv99ca.execute-api.ap-south-1.amazonaws.com/UAT/book", book)
+			const record = {
+					"fundId": book.fundId.toString(),
+					"quantity": book.quantity.toString(),
+					"price": book.price.toString(),
+					"date": getDateString(book.date)
+				};
+			if(delFlag) {
+				record.action="remove";
+			}				
+            $http.post("https://8ecbjv99ca.execute-api.ap-south-1.amazonaws.com/UAT/book", record)
                 .then(function(response) {
                     book.editing = false;
                     delete book._backup;
@@ -196,8 +211,8 @@ app.controller('MaintainFundController', ['$scope', '$http', '$q', function($sco
 
     // Local fallback data for non-prodMode
     var localFunds = [
-        { fundId: "F001", fundName: "Alpha Fund", fundType: "Equity", fundFamily: "Family A" },
-        { fundId: "F002", fundName: "Beta Fund", fundType: "Debt", fundFamily: "Family B" }
+        { fund_id: "F001", fund_name: "Alpha Fund", fund_type: "Equity", fund_family: "Family A" },
+        { fund_id: "F002", fund_name: "Beta Fund", fund_type: "Debt", fund_family: "Family B" }
     ];
 
     // Fetch funds
@@ -207,7 +222,7 @@ app.controller('MaintainFundController', ['$scope', '$http', '$q', function($sco
             $http.get("https://8ecbjv99ca.execute-api.ap-south-1.amazonaws.com/UAT/funds")
                 .then(function(response) {
                     // If API returns { body: [...] }
-                    $scope.funds = response.data.body ? response.data.body : response.data;
+                    $scope.funds = response.data && response.data.funds ? response.data.funds.Items : []
                 }, function(error) {
                     alert("Failed to load funds from API.");
                 });
@@ -240,10 +255,19 @@ app.controller('MaintainFundController', ['$scope', '$http', '$q', function($sco
     };
 
     // Save fund (after editing)
-    $scope.saveFund = function(fund) {
+    $scope.saveFund = function(fund, delFlag) {
         if (window.prodMode) {
+			const record = {
+                        "fundId": fund.fund_id.toString(),
+                        "fundName": fund.fund_name,
+                        "fundType": fund.fund_type,
+                        "fundFamily": fund.fund_family
+                    };
+			if(delFlag) {
+				record.action="remove";
+			}				
             // For demo, just POST as add (real API should support PUT/PATCH)
-            $http.post("https://8ecbjv99ca.execute-api.ap-south-1.amazonaws.com/UAT/funds", fund)
+            $http.post("https://8ecbjv99ca.execute-api.ap-south-1.amazonaws.com/UAT/funds", record)
                 .then(function(response) {
                     fund.editing = false;
                     delete fund._backup;

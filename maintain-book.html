@@ -51,9 +51,10 @@
           </td>
           <td>
             <div class="action-buttons">
-              <button class="btn btn-sm btn-success" ng-if="book.editing" ng-click="saveBook(book)">Save</button>
+              <button class="btn btn-sm btn-success" ng-if="book.editing" ng-click="saveBook(book, false)">Save</button>
               <button class="btn btn-sm btn-warning" ng-if="book.editing" ng-click="cancelEdit(book)">Cancel</button>
               <button class="btn btn-sm btn-secondary" ng-if="!book.editing" ng-click="editBook(book)">Edit</button>
+			  <button class="btn btn-sm btn-secondary" ng-if="!book.editing" ng-click="saveBook(book, true)">Del</button>
             </div>
           </td>
         </tr>
