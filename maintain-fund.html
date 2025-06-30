@@ -1,0 +1,87 @@
+<!-- maintain-fund.html -->
+<div class="container" style="max-width: 900px; margin: 0 auto;">
+  <h1>Maintain Fund</h1>
+
+  <!-- Add Fund Modal -->
+  <div class="modal" ng-show="showModal">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Add New Fund</h5>
+          <button type="button" class="btn-close" ng-click="closeModal()"></button>
+        </div>
+        <div class="modal-body">
+          <form>
+            <div class="form-group mb-3">
+              <label for="newFundId">Fund ID</label>
+              <input type="text" id="newFundId" ng-model="newFund.fundId" class="form-control" required />
+            </div>
+            <div class="form-group mb-3">
+              <label for="newFundName">Fund Name</label>
+              <input type="text" id="newFundName" ng-model="newFund.fundName" class="form-control" required />
+            </div>
+            <div class="form-group mb-3">
+              <label for="newFundType">Fund Type</label>
+              <input type="text" id="newFundType" ng-model="newFund.fundType" class="form-control" required />
+            </div>
+            <div class="form-group mb-3">
+              <label for="newFundFamily">Fund Family</label>
+              <input type="text" id="newFundFamily" ng-model="newFund.fundFamily" class="form-control" required />
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" ng-click="closeModal()">Cancel</button>
+          <button type="button" class="btn btn-primary" ng-click="addFund()">Add Fund</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Button to Open Modal -->
+
+  <!-- Fund List Table -->
+  <div class="table-section">
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th>Fund ID</th>
+          <th>Fund Name</th>
+          <th>Fund Type</th>
+          <th>Fund Family</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr ng-repeat="fund in funds">
+          <td>
+            <span ng-if="!fund.editing">{{fund.fundId}}</span>
+            <input ng-if="fund.editing" ng-model="fund.fundId" class="form-control" />
+          </td>
+          <td>
+            <span ng-if="!fund.editing">{{fund.fundName}}</span>
+            <input ng-if="fund.editing" ng-model="fund.fundName" class="form-control" />
+          </td>
+          <td>
+            <span ng-if="!fund.editing">{{fund.fundType}}</span>
+            <input ng-if="fund.editing" ng-model="fund.fundType" class="form-control" />
+          </td>
+          <td>
+            <span ng-if="!fund.editing">{{fund.fundFamily}}</span>
+            <input ng-if="fund.editing" ng-model="fund.fundFamily" class="form-control" />
+          </td>
+          <td>
+            <div class="action-buttons">
+              <button class="btn btn-sm btn-success" ng-if="fund.editing" ng-click="saveFund(fund)">Save</button>
+              <button class="btn btn-sm btn-warning" ng-if="fund.editing" ng-click="cancelEdit(fund)">Cancel</button>
+              <button class="btn btn-sm btn-secondary" ng-if="!fund.editing" ng-click="editFund(fund)">Edit</button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  
+  <button type="button" class="btn btn-primary" ng-click="openModal()">Add New Fund</button>
+
+</div>

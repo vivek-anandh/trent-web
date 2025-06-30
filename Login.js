@@ -63,6 +63,9 @@ e.read=function(t,e,r,n,i){var o,s,a=8*i-n-1,u=(1<<a)-1,c=u>>1,f=-7,h=r?i-1:0,l=
 		if(url.indexOf('?') != -1) {
 			url = url.substring(0, url.indexOf('?')); 	
 		}
+		if(url.indexOf('#') != -1) {
+			url = url.substring(0, url.indexOf('#')); 	
+		}
 		var settings = {};
 		settings.client_id = "2tegq8gghd0donvoa9q622e0n5";
 		settings.authority = "https://cognito-idp.ap-south-1.amazonaws.com/ap-south-1_BJtLRQ306/";

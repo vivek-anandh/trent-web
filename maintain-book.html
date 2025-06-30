@@ -1,0 +1,124 @@
+<!-- maintain-book.html -->
+<div class="container" style="max-width: 900px; margin: 0 auto;">
+  <h1>Maintain Book</h1>
+
+  <div class="filter-section">
+    <!-- Filter Section -->
+    <form class="mb-3">
+      <div class="form-group mb-3">
+        <label for="filterFundId">Fund ID</label>
+        <input type="number" id="filterFundId" ng-model="filter.fundId" class="form-control" min="1"
+          placeholder="Fund ID">
+      </div>
+      <div class="form-group mb-3">
+        <label for="filterDate">Date</label>
+        <input type="date" id="filterDate" ng-model="filter.date" class="form-control" placeholder="YYYY-MM-DD">
+      </div>
+      <button type="button" class="btn btn-secondary" ng-click="clearFilter()">Clear</button>
+    </form>
+  </div>
+
+  <div class="table-section">
+    <!-- Fund List Table -->
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th>Fund ID</th>
+          <th>Quantity</th>
+          <th>Price</th>
+          <th>Date</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr ng-repeat="book in getPagedBooks(filteredBooks = (books | filter:bookFilter | orderBy:'-date'))">
+          <td>
+            <span ng-if="!book.editing">{{book.fundId}}</span>
+            <input ng-if="book.editing" ng-model="book.fundId" class="form-control" type="number" min="1" />
+          </td>
+          <td>
+            <span ng-if="!book.editing">{{book.quantity}}</span>
+            <input ng-if="book.editing" ng-model="book.quantity" class="form-control" type="number" step="any" />
+          </td>
+          <td>
+            <span ng-if="!book.editing">{{book.price}}</span>
+            <input ng-if="book.editing" ng-model="book.price" class="form-control" type="number" step="any" />
+          </td>
+          <td>
+            <span ng-if="!book.editing">{{book.date}}</span>
+            <input ng-if="book.editing" ng-model="book.date" class="form-control" type="date"
+              ng-value="book.date" />
+          </td>
+          <td>
+            <div class="action-buttons">
+              <button class="btn btn-sm btn-success" ng-if="book.editing" ng-click="saveBook(book)">Save</button>
+              <button class="btn btn-sm btn-warning" ng-if="book.editing" ng-click="cancelEdit(book)">Cancel</button>
+              <button class="btn btn-sm btn-secondary" ng-if="!book.editing" ng-click="editBook(book)">Edit</button>
+            </div>
+          </td>
+        </tr>
+        <tr ng-if="filteredBooks.length === 0">
+          <td colspan="5" class="text-center">No records found.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pagination controls -->
+  <nav>
+    <ul class="pagination">
+      <li class="page-item" ng-class="{disabled: currentPage === 1}">
+        <a class="page-link" href="" ng-click="setPage(currentPage - 1)" ng-if="currentPage > 1">&laquo;</a>
+      </li>
+      <li class="page-item" ng-repeat="page in [].constructor(pageCount(filteredBooks)) track by $index"
+          ng-class="{active: currentPage === ($index+1)}">
+        <a class="page-link" href="" ng-click="setPage($index+1)">{{$index+1}}</a>
+      </li>
+      <li class="page-item" ng-class="{disabled: currentPage === pageCount(filteredBooks)}">
+        <a class="page-link" href="" ng-click="setPage(currentPage + 1)" ng-if="currentPage < pageCount(filteredBooks)">&raquo;</a>
+      </li>
+      <li class="page-item">
+        <button type="button" class="btn btn-primary" ng-click="openModal()">Add Book Entry</button>
+      </li>
+
+    </ul>
+  </nav>
+
+  <!-- Add Book Modal -->
+  <div class="modal" ng-if="showModal">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Add New Book</h5>
+          <button type="button" class="btn-close" ng-click="closeModal()"></button>
+        </div>
+        <div class="modal-body">
+          <form>
+            <div class="form-group mb-3">
+              <label for="newFundId">Fund ID</label>
+              <input type="number" id="newFundId" ng-model="newBook.fundId" class="form-control" min="1" required />
+            </div>
+            <div class="form-group mb-3">
+              <label for="newQuantity">Quantity</label>
+              <input type="number" id="newQuantity" ng-model="newBook.quantity" class="form-control" step="any" required />
+            </div>
+            <div class="form-group mb-3">
+              <label for="newPrice">Price</label>
+              <input type="number" id="newPrice" ng-model="newBook.price" class="form-control" step="any" required />
+            </div>
+            <div class="form-group mb-3">
+              <label for="newDate">Date</label>
+              <input type="date" id="newDate" ng-model="newBook.date" class="form-control" required />
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" ng-click="closeModal()">Cancel</button>
+          <button type="button" class="btn btn-primary" ng-click="addBook()">Add Book</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Button to Open Modal -->
+</div>
