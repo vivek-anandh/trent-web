@@ -75,6 +75,7 @@ $scope.signInAndLoadScreen = function () {
 	if(prodMode) {
 		initAuthFlow().then(function(response) {
 			$scope.getAllData(response.access_token);
+			accessToken = response.access_token;
 		});	
 	}
 	else{
