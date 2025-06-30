@@ -23,7 +23,6 @@ $scope.loadFundsData = function(allFundsData) {
 	var promise = $scope.loadFundsDataPromise(allFundsData);
 	promise.then(function(response) {
 		$scope.data = response;
-		console.log(response)
 	});		
 };
 

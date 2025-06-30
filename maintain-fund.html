@@ -14,19 +14,19 @@
           <form>
             <div class="form-group mb-3">
               <label for="newFundId">Fund ID</label>
-              <input type="text" id="newFundId" ng-model="newFund.fundId" class="form-control" required />
+              <input type="text" id="newFundId" ng-model="newFund.fund_id" class="form-control" required />
             </div>
             <div class="form-group mb-3">
               <label for="newFundName">Fund Name</label>
-              <input type="text" id="newFundName" ng-model="newFund.fundName" class="form-control" required />
+              <input type="text" id="newFundName" ng-model="newFund.fund_name" class="form-control" required />
             </div>
             <div class="form-group mb-3">
               <label for="newFundType">Fund Type</label>
-              <input type="text" id="newFundType" ng-model="newFund.fundType" class="form-control" required />
+              <input type="text" id="newFundType" ng-model="newFund.fund_type" class="form-control" required />
             </div>
             <div class="form-group mb-3">
               <label for="newFundFamily">Fund Family</label>
-              <input type="text" id="newFundFamily" ng-model="newFund.fundFamily" class="form-control" required />
+              <input type="text" id="newFundFamily" ng-model="newFund.fund_family" class="form-control" required />
             </div>
           </form>
         </div>
@@ -55,26 +55,27 @@
       <tbody>
         <tr ng-repeat="fund in funds">
           <td>
-            <span ng-if="!fund.editing">{{fund.fundId}}</span>
-            <input ng-if="fund.editing" ng-model="fund.fundId" class="form-control" />
+            <span ng-if="!fund.editing">{{fund.fund_id}}</span>
+            <input ng-if="fund.editing" ng-model="fund.fund_id" class="form-control" />
           </td>
           <td>
-            <span ng-if="!fund.editing">{{fund.fundName}}</span>
-            <input ng-if="fund.editing" ng-model="fund.fundName" class="form-control" />
+            <span ng-if="!fund.editing">{{fund.fund_name}}</span>
+            <input ng-if="fund.editing" ng-model="fund.fund_name" class="form-control" />
           </td>
           <td>
-            <span ng-if="!fund.editing">{{fund.fundType}}</span>
-            <input ng-if="fund.editing" ng-model="fund.fundType" class="form-control" />
+            <span ng-if="!fund.editing">{{fund.fund_type}}</span>
+            <input ng-if="fund.editing" ng-model="fund.fund_type" class="form-control" />
           </td>
           <td>
-            <span ng-if="!fund.editing">{{fund.fundFamily}}</span>
-            <input ng-if="fund.editing" ng-model="fund.fundFamily" class="form-control" />
+            <span ng-if="!fund.editing">{{fund.fund_family}}</span>
+            <input ng-if="fund.editing" ng-model="fund.fund_family" class="form-control" />
           </td>
           <td>
             <div class="action-buttons">
-              <button class="btn btn-sm btn-success" ng-if="fund.editing" ng-click="saveFund(fund)">Save</button>
+              <button class="btn btn-sm btn-success" ng-if="fund.editing" ng-click="saveFund(fund, false)">Save</button>
               <button class="btn btn-sm btn-warning" ng-if="fund.editing" ng-click="cancelEdit(fund)">Cancel</button>
               <button class="btn btn-sm btn-secondary" ng-if="!fund.editing" ng-click="editFund(fund)">Edit</button>
+              <button class="btn btn-sm btn-secondary" ng-if="!fund.editing" ng-click="saveFund(fund, true)">Del</button>			  
             </div>
           </td>
         </tr>
