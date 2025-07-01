@@ -192,6 +192,12 @@ app.controller('MaintainBookController', ['$scope', '$http', '$q', function($sco
 
     $scope.addBook = function() {
         if (prodMode) {
+				const record = {
+					"fundId": $scope.newBook.fundId.toString(),
+					"quantity": $scope.newBook.quantity.toString(),
+					"price": $scope.newBook.price.toString(),
+					"date": getDateString($scope.newBook.date)
+				};		
             $http.post('https://8ecbjv99ca.execute-api.ap-south-1.amazonaws.com/UAT/book', $scope.newBook, {
 	                headers: {
 	                    'Authorization': 'Bearer ' + accessToken,
