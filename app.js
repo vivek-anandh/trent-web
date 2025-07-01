@@ -149,7 +149,12 @@ app.controller('MaintainBookController', ['$scope', '$http', '$q', function($sco
 			if(delFlag) {
 				record.action="remove";
 			}				
-            $http.post("https://8ecbjv99ca.execute-api.ap-south-1.amazonaws.com/UAT/book", record)
+            $http.post("https://8ecbjv99ca.execute-api.ap-south-1.amazonaws.com/UAT/book", record{
+	                headers: {
+	                    'Authorization': 'Bearer ' + accessToken,
+	                    'Content-Type': 'application/json'
+	                }
+            	})
                 .then(function(response) {
                     book.editing = false;
                     delete book._backup;
@@ -187,7 +192,12 @@ app.controller('MaintainBookController', ['$scope', '$http', '$q', function($sco
 
     $scope.addBook = function() {
         if (prodMode) {
-            $http.post('https://8ecbjv99ca.execute-api.ap-south-1.amazonaws.com/UAT/book', $scope.newBook)
+            $http.post('https://8ecbjv99ca.execute-api.ap-south-1.amazonaws.com/UAT/book', $scope.newBook{
+	                headers: {
+	                    'Authorization': 'Bearer ' + accessToken,
+	                    'Content-Type': 'application/json'
+	                }
+            	})
                 .then(function(response) {
                     $scope.books.push(response.data);
                     $scope.closeModal();
@@ -219,7 +229,12 @@ app.controller('MaintainFundController', ['$scope', '$http', '$q', function($sco
     $scope.loadFunds = function() {
         if (window.prodMode) {
             // Use $http for GET
-            $http.get("https://8ecbjv99ca.execute-api.ap-south-1.amazonaws.com/UAT/funds")
+            $http.get("https://8ecbjv99ca.execute-api.ap-south-1.amazonaws.com/UAT/funds", {
+	                headers: {
+	                    'Authorization': 'Bearer ' + accessToken,
+	                    'Content-Type': 'application/json'
+	                }
+            	})
                 .then(function(response) {
                     // If API returns { body: [...] }
                     $scope.funds = response.data && response.data.funds ? response.data.funds.Items : []
@@ -235,7 +250,12 @@ app.controller('MaintainFundController', ['$scope', '$http', '$q', function($sco
     // Add a new fund
     $scope.addFund = function() {
         if (window.prodMode) {
-            $http.post("https://8ecbjv99ca.execute-api.ap-south-1.amazonaws.com/UAT/funds", $scope.newFund)
+            $http.post("https://8ecbjv99ca.execute-api.ap-south-1.amazonaws.com/UAT/funds", $scope.newFund, {
+	                headers: {
+	                    'Authorization': 'Bearer ' + accessToken,
+	                    'Content-Type': 'application/json'
+	                }
+            	})
                 .then(function(response) {
                     $scope.loadFunds();
                     $scope.newFund = {};
@@ -267,7 +287,12 @@ app.controller('MaintainFundController', ['$scope', '$http', '$q', function($sco
 				record.action="remove";
 			}				
             // For demo, just POST as add (real API should support PUT/PATCH)
-            $http.post("https://8ecbjv99ca.execute-api.ap-south-1.amazonaws.com/UAT/funds", record)
+            $http.post("https://8ecbjv99ca.execute-api.ap-south-1.amazonaws.com/UAT/funds", record{
+	                headers: {
+	                    'Authorization': 'Bearer ' + accessToken,
+	                    'Content-Type': 'application/json'
+	                }
+            	})
                 .then(function(response) {
                     fund.editing = false;
                     delete fund._backup;
