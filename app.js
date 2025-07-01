@@ -149,7 +149,7 @@ app.controller('MaintainBookController', ['$scope', '$http', '$q', function($sco
 			if(delFlag) {
 				record.action="remove";
 			}				
-            $http.post("https://8ecbjv99ca.execute-api.ap-south-1.amazonaws.com/UAT/book", record{
+            $http.post("https://8ecbjv99ca.execute-api.ap-south-1.amazonaws.com/UAT/book", record, {
 	                headers: {
 	                    'Authorization': 'Bearer ' + accessToken,
 	                    'Content-Type': 'application/json'
@@ -192,7 +192,7 @@ app.controller('MaintainBookController', ['$scope', '$http', '$q', function($sco
 
     $scope.addBook = function() {
         if (prodMode) {
-            $http.post('https://8ecbjv99ca.execute-api.ap-south-1.amazonaws.com/UAT/book', $scope.newBook{
+            $http.post('https://8ecbjv99ca.execute-api.ap-south-1.amazonaws.com/UAT/book', $scope.newBook, {
 	                headers: {
 	                    'Authorization': 'Bearer ' + accessToken,
 	                    'Content-Type': 'application/json'
@@ -287,7 +287,7 @@ app.controller('MaintainFundController', ['$scope', '$http', '$q', function($sco
 				record.action="remove";
 			}				
             // For demo, just POST as add (real API should support PUT/PATCH)
-            $http.post("https://8ecbjv99ca.execute-api.ap-south-1.amazonaws.com/UAT/funds", record{
+            $http.post("https://8ecbjv99ca.execute-api.ap-south-1.amazonaws.com/UAT/funds", record, {
 	                headers: {
 	                    'Authorization': 'Bearer ' + accessToken,
 	                    'Content-Type': 'application/json'
