@@ -262,7 +262,7 @@ app.controller('MaintainFundController', ['$scope', '$http', '$q', function($sco
                         "fundType": $scope.newFund.fund_type,
                         "fundFamily": $scope.newFund.fund_family
                     };		
-            $http.post("https://8ecbjv99ca.execute-api.ap-south-1.amazonaws.com/UAT/funds", $scope.newFund, {
+            $http.post("https://8ecbjv99ca.execute-api.ap-south-1.amazonaws.com/UAT/funds", record, {
 	                headers: {
 	                    'Authorization': 'Bearer ' + accessToken,
 	                    'Content-Type': 'application/json'
