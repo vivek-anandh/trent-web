@@ -198,7 +198,7 @@ app.controller('MaintainBookController', ['$scope', '$http', '$q', function($sco
 					"price": $scope.newBook.price.toString(),
 					"date": getDateString($scope.newBook.date)
 				};		
-            $http.post('https://8ecbjv99ca.execute-api.ap-south-1.amazonaws.com/UAT/book', $scope.newBook, {
+            $http.post('https://8ecbjv99ca.execute-api.ap-south-1.amazonaws.com/UAT/book', record, {
 	                headers: {
 	                    'Authorization': 'Bearer ' + accessToken,
 	                    'Content-Type': 'application/json'
