@@ -4,8 +4,8 @@ var accessToken  = '';
 // TrentAngularAppController.js or new app.js
 var app = angular.module('TrentAngularApp', ['ngRoute']);
 
-function getDateString(date){
-	return (date instanceof Date)
+function getDateString(d){
+	return (d instanceof Date)
                 ? d.getFullYear() + '-' +
                   ('0' + (d.getMonth() + 1)).slice(-2) + '-' +
                   ('0' + d.getDate()).slice(-2)
