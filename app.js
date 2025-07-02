@@ -256,6 +256,12 @@ app.controller('MaintainFundController', ['$scope', '$http', '$q', function($sco
     // Add a new fund
     $scope.addFund = function() {
         if (window.prodMode) {
+		const record = {
+                        "fundId": $scope.newFund.fund_id.toString(),
+                        "fundName": $scope.newFund.fund_name,
+                        "fundType": $scope.newFund.fund_type,
+                        "fundFamily": $scope.newFund.fund_family
+                    };		
             $http.post("https://8ecbjv99ca.execute-api.ap-south-1.amazonaws.com/UAT/funds", $scope.newFund, {
 	                headers: {
 	                    'Authorization': 'Bearer ' + accessToken,
