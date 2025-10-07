@@ -218,7 +218,7 @@ app.controller('MaintainBookController', ['$scope', '$http', '$q', function($sco
     };
 
     // Initial load
-    $scope.loadBooks();
+    //$scope.loadBooks();
 }]);
 
 app.controller('MaintainFundController', ['$scope', '$http', '$q', function($scope, $http, $q) {
