@@ -9,7 +9,11 @@
         &nbsp;
         <span class="label">Investment</span> <span>{{data.totals.investment | currency : '₹': 0 }}</span>
         &nbsp;
-        <span class="label">Net</span> <span class="{{numberClass(data.totals.netP)}}">{{data.totals.net | currency : '₹': 0 }}</span>
+        <span class="label">UnRealized</span> <span class="{{numberClass(data.totals.netP)}}">{{data.totals.net | currency : '₹': 0 }}</span>
+        &nbsp;
+        <span class="label">Realized</span> <span class="{{numberClass(data.totals.realized)}}">{{data.totals.realized | currency : '₹': 0 }}</span>
+        &nbsp;
+        <span class="label">Gross</span> <span class="{{numberClass(data.totals.gross)}}">{{data.totals.gross | currency : '₹': 0 }}</span>
     </h3>
 <hr/>
 <div class="row">
@@ -33,6 +37,7 @@
         Value: <span class="{{numberClass(fundDtl.netP)}}">{{fundDtl.value | currency : '₹' : 0 }}</span>
         &nbsp;&nbsp;&nbsp;
         Profit: <span class="{{numberClass(fundDtl.netP)}}">{{fundDtl.net | currency : '₹': 0}}  <span class="text-sm ">{{fundDtl.netP | number : 2 }}%</span></span>				
+        Realized: <span class="{{numberClass(fundDtl.realized)}}">{{fundDtl.realized | currency : '₹': 0}}</span></span>				
         <span class="text-xs" style="text-align:left">NAV {{fundDtl.latestNav}} as on {{formatDate(fundDtl.latestNavDt)}}</span>
     </h5>
     <div>

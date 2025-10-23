@@ -33,7 +33,7 @@ $scope.getAllDataPromise = function(token) {
 			// Creating the XMLHttpRequest object
 			var request = new XMLHttpRequest();
 			
-			var api = "api.json";
+			var api = "data/api.json";
 			if(prodMode){
 				api  = "https://8ecbjv99ca.execute-api.ap-south-1.amazonaws.com/UAT/holdings"; 					
 			}
@@ -226,15 +226,23 @@ function outputDecorator(data) {
     response.totals.value = 0;
     response.totals.investment = 0;
     response.totals.previousValue = 0;
+    response.totals.realized = 0;
     funds.map((fund, index) => {
         if (fund.isActive && fund.portfolio.length > 0) {
             fund.portfolio.sort((a, b) => { return b.date - a.date; });
             response.totals.value += Number(fund.value);
             response.totals.investment += fund.investment;
             response.totals.previousValue += Number(fund.previousValue);
-			//console.log(fund.portfolio);
+			if(fund.realized){
+                response.totals.realized += Number(fund.realized);
+            }
+            //console.log(fund.portfolio);
         }
     });
+    let unknownrealized = 300000;
+    //icici all - 60k, abl - 60k, quant 97k, axis - 83k 
+    response.totals.realized += unknownrealized;
+    response.totals.gross = (response.totals.realized + response.totals.value - response.totals.investment).toFixed(0);
     response.totals.net = (response.totals.value - response.totals.investment).toFixed(0);
     response.totals.netP = ((response.totals.value - response.totals.investment) * 100 / response.totals.investment).toFixed(3);
     let previousValueOriginal = response.totals.value - response.totals.previousValue;
@@ -243,8 +251,28 @@ function outputDecorator(data) {
     return response;
 }
 
+function sortDate(list){
+    if(!list || list.length == 0){
+        return;
+    }
+    list.sort(function (a, b) {
+        if (a.date > b.date) {
+            return -1;
+        }
+        else if (a.date < b.date) {
+            return 1;
+        }
+        else {
+            return 0;
+        }
+    });
+
+}
+
 function sell(fund) {
     //change transaction as sell
+    sortDate(fund.transactions);
+    sortDate(fund.portfolio);
     fund.transactions.forEach(function (transaction) {
         if (transaction.quantity < 0) {
             transaction.type = 'sell';
@@ -265,26 +293,37 @@ function sell(fund) {
             sellRecords.push(fund.portfolio[i]);
         }
     }
-
+    
+    buyRecords.reverse();
+    let realized = 0;
     for (let i = 0; i < sellRecords.length; i++) {
         let sell = sellRecords[i];
         if (sell.quantity < 0) {
             for (let j = 0; j < buyRecords.length; j++) {
                 let buy = buyRecords[j];
                 if (buy.quantity >= (sell.quantity * -1)) {
+                    //relalized 
+                    realized += ((sell.quantity * -1) * (sell.price - buy.price));
+
                     buy.quantity += sell.quantity;
                     buy.quantity = Number(buy.quantity.toFixed(4));
                     sell.quantity = 0;
+
                 }
                 else if (buy.quantity < (sell.quantity * -1)) {
+                    //relalized 
+                    realized += ((buy.quantity) * (sell.price - buy.price));
+
                     sell.quantity += buy.quantity;
                     sell.quantity = Number(sell.quantity.toFixed(4));
                     buy.quantity = 0;
+
                 }
             }
         }
     }
-
+    fund.realized = realized.toFixed(0);
+    //console.log('Realized for fund ' + fund.name + ' is ' + fund.realized);
 }
 
 
@@ -405,25 +444,51 @@ function fetchApi(fundId) {
 	
 	return new Promise(function (resolve, reject) {
 		try {
-			// Creating the XMLHttpRequest object
-			var request = new XMLHttpRequest();
+	        var apiKey = "data_"+ fundId + "_json";
+            
+            var cachedApi = localStorage.getItem(apiKey);
+            
+            if(cachedApi) {
+                cachedApi = JSON.parse(cachedApi);
+                var now = new Date().now;
+                if(cachedApi.expiresAt < now) {
+                    resolve(cachedApi.data);
+                    return;
+                }
+                else {
+                    localStorage.removeItem(apiKey);
+                    cachedApi = null;
+                }
+            }    
+            
+            if(!cachedApi) {
+                // Creating the XMLHttpRequest object
+                var request = new XMLHttpRequest();
+                var ttlMs = 24 * 60 * 60 * 1000; // 24 hours TTL
+                
+                var mfApi  = "https://api.mfapi.in/mf/" + fundId; 
+                // Instantiating the request object
+                request.open("GET", mfApi);
 
-			
-			var mfApi  = "https://api.mfapi.in/mf/" + fundId; 
-			// Instantiating the request object
-			request.open("GET", mfApi);
+                // Defining event listener for readystatechange event
+                request.onreadystatechange = function() {
+                    // Check if the request is compete and was successful
+                    if(this.readyState === 4 && this.status === 200) {
+                        // Inserting the response from server into an HTML element
+                        var record = {
+                            savedAt: new Date().toISOString(),
+                            expiresAt: Date.now() + ttlMs,
+                            content: this.responseText
+                        };
+                        localStorage.setItem(apiKey, JSON.stringify(record));
 
-			// Defining event listener for readystatechange event
-			request.onreadystatechange = function() {
-				// Check if the request is compete and was successful
-				if(this.readyState === 4 && this.status === 200) {
-					// Inserting the response from server into an HTML element
-					resolve(this.responseText);
-				}
-			};
+                        resolve(this.responseText);
+                    }
+                };
 
-			// Sending the request to the server
-			request.send();
+                // Sending the request to the server
+                request.send();
+            }
 			
       } catch (e) {
             console.error(e);
