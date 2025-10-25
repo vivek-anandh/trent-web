@@ -1,8 +1,8 @@
 
 <!-- home.html -->
-<h1>Funds Dashboard</h1>
+<h4>Funds Dashboard</h4>
 <hr/>
-    <h3 class="font-bold3">
+    <h5 class="font-bold3">
         <span class="label">Today</span> <span class="{{numberClass(data.totals.previousValueP)}}">{{data.totals.previousValue | currency : '₹': 0 }} <span class="text-sm">{{data.totals.previousValueP | number : 2}}%</span></span>
         &nbsp;
         <span class="label">Value</span> <span class="{{numberClass(data.totals.netP)}}">{{data.totals.value | currency : '₹': 0 }} <span class="text-sm">{{data.totals.netP | number : 2}}%</span></span>
@@ -14,7 +14,7 @@
         <span class="label">Realized</span> <span class="{{numberClass(data.totals.realized)}}">{{data.totals.realized | currency : '₹': 0 }}</span>
         &nbsp;
         <span class="label">Gross</span> <span class="{{numberClass(data.totals.gross)}}">{{data.totals.gross | currency : '₹': 0 }}</span>
-    </h3>
+    </h5>
 <hr/>
 <div class="row">
     <div ng-repeat="fund in data.funds" class="col-sm">
@@ -37,7 +37,7 @@
         Value: <span class="{{numberClass(fundDtl.netP)}}">{{fundDtl.value | currency : '₹' : 0 }}</span>
         &nbsp;&nbsp;&nbsp;
         Profit: <span class="{{numberClass(fundDtl.netP)}}">{{fundDtl.net | currency : '₹': 0}}  <span class="text-sm ">{{fundDtl.netP | number : 2 }}%</span></span>				
-        <span ng-if="fundDtl.realized">
+        <span ng-if="fundDtl.realized > 0">
             Realized: <span class="{{numberClass(fundDtl.realized)}}">{{fundDtl.realized | currency : '₹': 0}}</span>
         </span>				
         <span class="text-xs" style="text-align:left">NAV {{fundDtl.latestNav}} as on {{formatDate(fundDtl.latestNavDt)}}</span>
