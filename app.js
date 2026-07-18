@@ -31,6 +31,10 @@ app.config(['$routeProvider', function($routeProvider) {
             templateUrl: 'portfolio-performance.html',
             controller: 'PortfolioPerformanceController'
         })
+        .when('/fund-detail/:fundId', {
+            templateUrl: 'fund-detail.html',
+            controller: 'FundDetailController'
+        })
         .otherwise({redirectTo: '/'});
 }]);
 

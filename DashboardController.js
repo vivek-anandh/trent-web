@@ -1,4 +1,4 @@
-app.controller('TrentAngularAppController', ['$scope', '$filter', '$q', function($scope, $filter, $q) {
+app.controller('TrentAngularAppController', ['$scope', '$filter', '$q', '$location', function($scope, $filter, $q, $location) {
 
 $scope.numberClass	= function(value) {
 	if(value){
@@ -50,8 +50,7 @@ $scope.closeFundDtl = function () {
 
 $scope.goToFundDetail = function ($event, fundId) {
 	if ($event) $event.stopPropagation();
-	var url = window.location.pathname + '#!/fund-detail/' + fundId;
-	window.location.href = url;
+	$location.path('/fund-detail/' + fundId);
 };
 
 $scope.loadFundsDataPromise = function(allFundsData) {
