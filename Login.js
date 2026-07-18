@@ -100,6 +100,8 @@ e.read=function(t,e,r,n,i){var o,s,a=8*i-n-1,u=(1<<a)-1,c=u>>1,f=-7,h=r?i-1:0,l=
 				if(!user) {
 					userManager.signinRedirectCallback().then(function(user) {
 						
+						history.replaceState(null, '', window.location.pathname + window.location.hash);
+
 						userManager.events.addSilentRenewError(function(){
 							initAuthFlow(true);
 						});

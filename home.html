@@ -107,15 +107,20 @@
 <div class="detail-backdrop" ng-if="fundDtl && fundDtl.isActive" ng-click="closeFundDtl()">
 	<div class="detail-panel" ng-click="$event.stopPropagation()">
 
-		<div class="detail-header">
+			<div class="detail-header">
 			<div class="detail-header-top">
 				<div>
 					<div class="detail-fund-name">{{fundDtl.name}}</div>
 					<div class="detail-nav-date">NAV {{fundDtl.latestNav}} · {{formatDate(fundDtl.latestNavDt)}}</div>
 				</div>
-				<button type="button" class="detail-close" ng-click="closeFundDtl()">
-					<i class="bi bi-x-lg"></i>
-				</button>
+				<div class="d-flex align-items-center gap-2">
+					<a href="#!/fund-detail/{{fundDtl.fundId}}" class="btn btn-outline-primary btn-sm" ng-click="closeFundDtl()">
+						<i class="bi bi-bar-chart-line"></i> View Detail
+					</a>
+					<button type="button" class="detail-close" ng-click="closeFundDtl()">
+						<i class="bi bi-x-lg"></i>
+					</button>
+				</div>
 			</div>
 
 			<div class="detail-stats">

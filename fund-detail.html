@@ -1,0 +1,156 @@
+<!-- fund-detail.html -->
+<div class="container" style="max-width: 1200px; margin: 0 auto;">
+
+  <div class="loading-state text-center py-4" ng-show="loading">
+    <div class="spinner-border text-primary" role="status"></div>
+    <span class="ms-2">Loading fund data...</span>
+  </div>
+
+  <div class="alert alert-warning text-center py-4" ng-show="!loading && error">
+    {{error}}
+  </div>
+
+  <div ng-show="!loading && !error && fund">
+
+    <!-- Fund Header -->
+    <div class="d-flex align-items-center justify-content-between mb-3">
+      <div>
+        <h1 class="page-title mb-1">{{fund.name}}</h1>
+        <p class="page-subtitle mb-0">
+          {{fund.fundType}} &middot; {{fund.family}} &middot; NAV {{fund.latestNav | number:4}} &middot; {{formatDate(fund.latestNavDt)}}
+        </p>
+      </div>
+      <a href="#!/" class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-arrow-left"></i> Back to Dashboard
+      </a>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-summary row g-3 mb-4">
+      <div class="col-md-3">
+        <div class="stat-card p-3 border rounded bg-light">
+          <div class="stat-label text-muted small">Invested</div>
+          <div class="stat-value fw-bold fs-5">{{formatCurrency(fund.investment)}}</div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="stat-card p-3 border rounded bg-light">
+          <div class="stat-label text-muted small">Current Value</div>
+          <div class="stat-value fw-bold fs-5">{{formatCurrency(fund.value)}}</div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="stat-card p-3 border rounded bg-light" ng-class="{'text-success': fund.netP >= 0, 'text-danger': fund.netP < 0}">
+          <div class="stat-label text-muted small">Gain/Loss</div>
+          <div class="stat-value fw-bold fs-5">{{formatCurrency(fund.net)}}</div>
+          <div class="stat-chip small" ng-class="{up: fund.netP >= 0, down: fund.netP < 0}">
+            {{fund.netP >= 0 ? '+' : ''}}{{fund.netP | number:2}}%
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="stat-card p-3 border rounded bg-light">
+          <div class="stat-label text-muted small">Today</div>
+          <div class="stat-value fw-bold fs-5" ng-class="{'text-success': fund.previousValueP >= 0, 'text-danger': fund.previousValueP < 0}">
+            {{formatCurrency(fund.previousValue)}}
+          </div>
+          <div class="stat-chip small" ng-class="{up: fund.previousValueP >= 0, down: fund.previousValueP < 0}">
+            {{fund.previousValueP >= 0 ? '+' : ''}}{{fund.previousValueP | number:2}}%
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Controls -->
+    <div class="controls-section mb-4">
+      <div class="filter-controls d-flex flex-wrap gap-2 align-items-center">
+        <div class="btn-group" role="group">
+          <button type="button" class="btn btn-outline-primary" ng-class="{active: timePeriod === 'quarterly'}" ng-click="setTimePeriod('quarterly')">Quarterly</button>
+          <button type="button" class="btn btn-outline-primary" ng-class="{active: timePeriod === 'yearly'}" ng-click="setTimePeriod('yearly')">Yearly</button>
+        </div>
+        <div class="btn-group" role="group">
+          <button type="button" class="btn btn-outline-secondary btn-sm" ng-class="{active: range === 1}" ng-click="setRange(1)">1Y</button>
+          <button type="button" class="btn btn-outline-secondary btn-sm" ng-class="{active: range === 2}" ng-click="setRange(2)">2Y</button>
+          <button type="button" class="btn btn-outline-secondary btn-sm" ng-class="{active: range === 3}" ng-click="setRange(3)">3Y</button>
+          <button type="button" class="btn btn-outline-secondary btn-sm" ng-class="{active: range === 5}" ng-click="setRange(5)">5Y</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="row">
+      <!-- Chart 1: NAV Performance -->
+      <div class="col-12 mb-4">
+        <div class="card chart-card">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">NAV Performance Over Time</h5>
+            <span class="badge bg-light text-dark" style="cursor:pointer;" ng-click="expandChart('navPerformanceChart')">&#x26F6; Expand</span>
+          </div>
+          <div class="card-body" style="position: relative; height: 400px;">
+            <canvas id="navPerformanceChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chart 2: Invested vs Value -->
+      <div class="col-12 mb-4">
+        <div class="card chart-card">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Your Investment Journey</h5>
+            <span class="badge bg-light text-dark" style="cursor:pointer;" ng-click="expandChart('investedValueChart')">&#x26F6; Expand</span>
+          </div>
+          <div class="card-body" style="position: relative; height: 400px;">
+            <canvas id="investedValueChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Transactions -->
+    <div class="card mb-4">
+      <div class="card-header">
+        <h5 class="mb-0">Transactions</h5>
+      </div>
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-hover mb-0">
+            <thead class="table-light">
+              <tr>
+                <th>Date</th>
+                <th>Type</th>
+                <th>Quantity</th>
+                <th>Price</th>
+                <th>Amount</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr ng-repeat="txn in transactions | orderBy:'-date'">
+                <td>{{formatTxnDate(txn.date)}}</td>
+                <td>
+                  <span class="badge" ng-class="{'bg-success': txn.quantity > 0, 'bg-danger': txn.quantity < 0}">
+                    {{txn.quantity > 0 ? 'Buy' : 'Sell'}}
+                  </span>
+                </td>
+                <td>{{Math.abs(txn.quantity) | number:3}}</td>
+                <td>{{txn.price | number:4}}</td>
+                <td>{{formatCurrency(Math.abs(txn.quantity * txn.price))}}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Fullscreen Chart Overlay -->
+  <div class="chart-overlay" ng-show="expandedChart" ng-click="collapseChart()">
+    <div class="chart-overlay-inner" ng-click="$event.stopPropagation()">
+      <button class="chart-overlay-close" ng-click="collapseChart()">&times;</button>
+      <div class="chart-overlay-body">
+        <canvas id="expandedChartCanvas"></canvas>
+      </div>
+    </div>
+  </div>
+
+</div>
