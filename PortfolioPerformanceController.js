@@ -11,7 +11,7 @@ app.controller('PortfolioPerformanceController', ['$scope', '$http', '$q', funct
     // Data
     $scope.rawData = [];
     $scope.periodData = [];
-    $scope.summary = { totalInvestment: 0, totalValue: 0, gain: 0, gainPercent: 0 };
+    $scope.summary = { totalInvestment: 0, totalValue: 0, gain: 0, gainPercent: 0, todayChange: 0, todayChangeP: 0 };
     $scope.fundPerformance = [];
 
     // Chart instances
@@ -28,6 +28,15 @@ app.controller('PortfolioPerformanceController', ['$scope', '$http', '$q', funct
     $scope.formatCurrency = function(value) {
         if (value == null || isNaN(value)) return '₹0';
         return '₹' + Math.abs(value).toLocaleString('en-IN', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+    };
+
+    // Number class for coloring
+    $scope.numberClass = function(value) {
+        if (value) {
+            value = Number(value);
+            return value >= 0 ? 'text-success' : 'text-danger';
+        }
+        return '';
     };
 
     // Get quarter label from date
@@ -299,7 +308,7 @@ app.controller('PortfolioPerformanceController', ['$scope', '$http', '$q', funct
     // Build summary from period data - use FINAL period (current totals), not sum
     function buildSummary(periodData, funds, navMap) {
         if (!periodData || periodData.length === 0) {
-            return { totalInvestment: 0, totalValue: 0, gain: 0, gainPercent: 0 };
+            return { totalInvestment: 0, totalValue: 0, gain: 0, gainPercent: 0, todayChange: 0, todayChangeP: 0 };
         }
         
         // Use latest period for current totals
@@ -332,11 +341,37 @@ app.controller('PortfolioPerformanceController', ['$scope', '$http', '$q', funct
         
         var gain = totalValue - totalInvestment;
         var gainPercent = totalInvestment > 0 ? (gain / totalInvestment) * 100 : 0;
+
+        // Compute Today's total change across all funds
+        var todayChange = 0;
+        var todayValueYesterday = 0;
+        if (funds) {
+            funds.forEach(function(f) {
+                var navs = navMap[f.fundId];
+                if (!navs || navs.length < 2) return;
+                var latestNav = navs[navs.length - 1].nav;
+                var prevNav = navs[navs.length - 2].nav;
+                var totalQty = 0;
+                f.transactions.forEach(function(t) {
+                    if (t.quantity > 0) {
+                        totalQty += t.quantity;
+                    }
+                });
+                if (totalQty > 0) {
+                    todayChange += (latestNav - prevNav) * totalQty;
+                    todayValueYesterday += prevNav * totalQty;
+                }
+            });
+        }
+        var todayChangeP = todayValueYesterday > 0 ? (todayChange / todayValueYesterday) * 100 : 0;
+
         return {
             totalInvestment: totalInvestment,
             totalValue: totalValue,
             gain: gain,
-            gainPercent: gainPercent
+            gainPercent: gainPercent,
+            todayChange: todayChange,
+            todayChangeP: todayChangeP
         };
     }
 
