@@ -10,6 +10,43 @@ $scope.numberClass	= function(value) {
 
 
 $scope.data	= {};
+$scope.loading = true;
+$scope.loadError = false;
+
+$scope.fundSearch = '';
+$scope.sortField = 'value';
+$scope.sortReverse = true;
+
+$scope.setSort = function(field) {
+	if ($scope.sortField === field) {
+		$scope.sortReverse = !$scope.sortReverse;
+	} else {
+		$scope.sortField = field;
+		$scope.sortReverse = true;
+	}
+};
+
+$scope.getSortValue = function(fund) {
+	if ($scope.sortField === 'name') {
+		return (fund.name || '').toLowerCase();
+	}
+	return Number(fund[$scope.sortField]) || 0;
+};
+
+$scope.allocationPct = function(fund) {
+	if (!$scope.data.totals || !$scope.data.totals.value || !fund || !fund.value) {
+		return 0;
+	}
+	return (Number(fund.value) / Number($scope.data.totals.value)) * 100;
+};
+
+$scope.showFundDtl = function (fund) {
+	$scope.fundDtl = fund;
+};
+
+$scope.closeFundDtl = function () {
+	$scope.fundDtl = null;
+};
 
 $scope.loadFundsDataPromise = function(allFundsData) {
 	var deferred = $q.defer();
@@ -23,7 +60,11 @@ $scope.loadFundsData = function(allFundsData) {
 	var promise = $scope.loadFundsDataPromise(allFundsData);
 	promise.then(function(response) {
 		$scope.data = response;
-	});		
+		$scope.loading = false;
+	}, function() {
+		$scope.loading = false;
+		$scope.loadError = true;
+	});
 };
 
 $scope.getAllDataPromise = function(token) {
@@ -154,10 +195,6 @@ $scope.getMonth = function (month) {
 			return 'Dec';
 	}
 	return monthStr;
-};
-
-$scope.showFundDtl = function (fund){
-	$scope.fundDtl = fund;
 };
 
 
