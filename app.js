@@ -27,6 +27,10 @@ app.config(['$routeProvider', function($routeProvider) {
             templateUrl: 'maintain-fund.html',
             controller: 'MaintainFundController'
         })
+        .when('/portfolio-performance', {
+            templateUrl: 'portfolio-performance.html',
+            controller: 'PortfolioPerformanceController'
+        })
         .otherwise({redirectTo: '/'});
 }]);
 

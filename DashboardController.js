@@ -473,7 +473,12 @@ function prepareHistData(hist) {
 
 function calculatePortfolio(funds, fundHist) {
     Object.keys(funds).forEach(function (fundId) {
-        calculateFund(funds[fundId], fundHist[fundId]);
+        if (fundHist[fundId] && fundHist[fundId].data && fundHist[fundId].data.length > 0) {
+            calculateFund(funds[fundId], fundHist[fundId]);
+        } else {
+            console.warn('Skipping fund ' + fundId + ' - no NAV history available');
+            funds[fundId].isActive = false;
+        }
     });
 }
 
@@ -481,15 +486,15 @@ function fetchApi(fundId) {
 	
 	return new Promise(function (resolve, reject) {
 		try {
-	        var apiKey = "data_"+ fundId + "_json";
+	        var apiKey = 'nav_hist_' + fundId;
             
             var cachedApi = localStorage.getItem(apiKey);
             
             if(cachedApi) {
                 cachedApi = JSON.parse(cachedApi);
-                var now = new Date().now;
-                if(cachedApi.expiresAt < now) {
-                    resolve(cachedApi.data);
+                var now = Date.now();
+                if(cachedApi.expiresAt > now) {
+					resolve(cachedApi.content);
                     return;
                 }
                 else {
@@ -510,18 +515,31 @@ function fetchApi(fundId) {
                 // Defining event listener for readystatechange event
                 request.onreadystatechange = function() {
                     // Check if the request is compete and was successful
-                    if(this.readyState === 4 && this.status === 200) {
-                        // Inserting the response from server into an HTML element
-                        var record = {
-                            savedAt: new Date().toISOString(),
-                            expiresAt: Date.now() + ttlMs,
-                            content: this.responseText
-                        };
-                        localStorage.setItem(apiKey, JSON.stringify(record));
-
-                        resolve(this.responseText);
+                    if(this.readyState === 4) {
+                        if (this.status === 200) {
+                            // Inserting the response from server into an HTML element
+                            var record = {
+                                savedAt: new Date().toISOString(),
+                                expiresAt: Date.now() + ttlMs,
+                                content: this.responseText
+                            };
+                            localStorage.setItem(apiKey, JSON.stringify(record));
+                            resolve(this.responseText);
+                        } else {
+                            reject('HTTP ' + this.status + ': ' + this.statusText);
+                        }
                     }
                 };
+                
+                request.onerror = function() {
+                    reject('Network error');
+                };
+                
+                request.ontimeout = function() {
+                    reject('Timeout');
+                };
+                
+                request.timeout = 15000;
 
                 // Sending the request to the server
                 request.send();
@@ -531,8 +549,8 @@ function fetchApi(fundId) {
             console.error(e);
             reject('Error in API Call');
         }
-    });		
-	
+	});		
+
 
 }
 
@@ -547,10 +565,13 @@ function navHistPromise(fundId) {
                     response.fundId = fundId;
                     response.hist = body;
                     resolve(response);
-                }).catch((error) => reject(' : Http Invocation Error  : ' + error));
+                }).catch((error) => {
+                    console.warn(' : Http Invocation Error for fund ' + fundId + ' : ' + error);
+                    resolve({ fundId: fundId, hist: null });
+                });
         } catch (e) {
             console.error(e);
-            reject('Error in API Call');
+            resolve({ fundId: fundId, hist: null });
         }
     });
 }

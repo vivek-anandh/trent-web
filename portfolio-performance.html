@@ -1,0 +1,114 @@
+<!-- portfolio-performance.html -->
+<div class="container" style="max-width: 1200px; margin: 0 auto;">
+  <h1 class="page-title">Portfolio Performance</h1>
+  <p class="page-subtitle">Track your invested vs value across quarters and years</p>
+
+  <div class="controls-section mb-4">
+    <div class="filter-controls d-flex flex-wrap gap-2 align-items-center mb-3">
+      <div class="btn-group" role="group" aria-label="Time period">
+        <button type="button" class="btn btn-outline-primary" ng-class="{active: timePeriod === 'quarterly'}" ng-click="setTimePeriod('quarterly')">Quarterly</button>
+        <button type="button" class="btn btn-outline-primary" ng-class="{active: timePeriod === 'yearly'}" ng-click="setTimePeriod('yearly')">Yearly</button>
+      </div>
+      <button type="button" class="btn btn-outline-primary" ng-click="refreshData()">Refresh</button>
+    </div>
+
+    <div class="stats-summary row g-3" ng-show="summary.totalInvestment > 0">
+      <div class="col-md-4">
+        <div class="stat-card p-3 border rounded bg-light">
+          <div class="stat-label text-muted small">Total Investment</div>
+          <div class="stat-value fw-bold fs-4">{{formatCurrency(summary.totalInvestment)}}</div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="stat-card p-3 border rounded bg-light">
+          <div class="stat-label text-muted small">Current Value</div>
+          <div class="stat-value fw-bold fs-4">{{formatCurrency(summary.totalValue)}}</div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="stat-card p-3 border rounded bg-light" ng-class="{'text-success': summary.gain >= 0, 'text-danger': summary.gain < 0}">
+          <div class="stat-label text-muted small">Gain/Loss</div>
+          <div class="stat-value fw-bold fs-4">{{formatCurrency(summary.gain)}}</div>
+          <div class="stat-chip small" ng-class="{up: summary.gainPercent >= 0, down: summary.gainPercent < 0}">
+            {{summary.gainPercent >= 0 ? '+' : ''}}{{summary.gainPercent | number:2}}%
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="charts-container">
+    <div class="row">
+      <!-- Chart 1: Invested vs Value -->
+      <div class="col-md-6 mb-4">
+        <div class="card chart-card h-100" ng-click="expandChart('investedValueChart')" style="cursor: pointer;" title="Click to enlarge">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Invested vs Value by Period</h5>
+            <span class="badge bg-light text-dark">&#x26F6;</span>
+          </div>
+          <div class="card-body" style="position: relative; height: 350px;">
+            <canvas id="investedValueChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chart 2: Fund Performance -->
+      <div class="col-md-6 mb-4">
+        <div class="card chart-card h-100" ng-click="expandChart('fundPerformanceChart')" style="cursor: pointer;" title="Click to enlarge">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Fund Performance (By Value)</h5>
+            <span class="badge bg-light text-dark">&#x26F6;</span>
+          </div>
+          <div class="card-body" style="position: relative; height: 350px;">
+            <canvas id="fundPerformanceChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chart 3: Gain/Loss by Period -->
+      <div class="col-md-6 mb-4">
+        <div class="card chart-card h-100" ng-click="expandChart('portfolioMetricsChart')" style="cursor: pointer;" title="Click to enlarge">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Gain/Loss by Period</h5>
+            <span class="badge bg-light text-dark">&#x26F6;</span>
+          </div>
+          <div class="card-body" style="position: relative; height: 350px;">
+            <canvas id="portfolioMetricsChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chart 4: Value Distribution -->
+      <div class="col-md-6 mb-4">
+        <div class="card chart-card h-100" ng-click="expandChart('valueDistributionChart')" style="cursor: pointer;" title="Click to enlarge">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Value Distribution by Fund</h5>
+            <span class="badge bg-light text-dark">&#x26F6;</span>
+          </div>
+          <div class="card-body" style="position: relative; height: 350px;">
+            <canvas id="valueDistributionChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Fullscreen Chart Overlay -->
+  <div class="chart-overlay" ng-show="expandedChart" ng-click="collapseChart()">
+    <div class="chart-overlay-inner" ng-click="$event.stopPropagation()">
+      <button class="chart-overlay-close" ng-click="collapseChart()">&times;</button>
+      <div class="chart-overlay-body">
+        <canvas id="expandedChartCanvas"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="alert alert-warning text-center py-4" ng-show="!loading && rawData.length === 0">
+    No data available. Please check your connection or try refresh.
+  </div>
+
+  <div class="loading-state text-center py-4" ng-show="loading">
+    <div class="spinner-border text-primary" role="status"></div>
+    <span class="ms-2">Loading portfolio data...</span>
+  </div>
+</div>
