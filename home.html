@@ -81,7 +81,7 @@
 						<i class="bi" ng-class="fund.netP >= 0 ? 'bi-caret-up-fill' : 'bi-caret-down-fill'"></i>{{fund.netP | number : 2}}%
 					</span>
 					<span class="fund-card-today {{numberClass(fund.previousValueP)}}">
-						{{fund.previousValue | currency : '₹': 0}} today
+						1d {{fund.previousValue | currency : '₹': 0}} 
 					</span>
 				</div>
 			</div>
@@ -114,9 +114,9 @@
 					<div class="detail-nav-date">NAV {{fundDtl.latestNav}} · {{formatDate(fundDtl.latestNavDt)}}</div>
 				</div>
 				<div class="d-flex align-items-center gap-2">
-					<a href="#!/fund-detail/{{fundDtl.fundId}}" class="btn btn-outline-primary btn-sm" ng-click="closeFundDtl()">
+					<button type="button" class="btn btn-outline-primary btn-sm" ng-click="goToFundDetail($event, fundDtl.fundId)">
 						<i class="bi bi-bar-chart-line"></i> View Detail
-					</a>
+					</button>
 					<button type="button" class="detail-close" ng-click="closeFundDtl()">
 						<i class="bi bi-x-lg"></i>
 					</button>
@@ -132,21 +132,27 @@
 					<span class="stat-label">Value</span>
 					<span class="stat-value {{numberClass(fundDtl.netP)}}">{{fundDtl.value | currency : '₹' : 0 }}</span>
 				</div>
-				<div class="detail-stat">
-					<span class="stat-label">Profit</span>
-					<span class="stat-value {{numberClass(fundDtl.netP)}}">{{fundDtl.net | currency : '₹': 0}} <span class="text-sm">{{fundDtl.netP | number : 2 }}%</span></span>
-				</div>
-				<div class="detail-stat" ng-if="fundDtl.realized > 0">
-					<span class="stat-label">Realized</span>
-					<span class="stat-value {{numberClass(fundDtl.realized)}}">{{fundDtl.realized | currency : '₹': 0}}</span>
-				</div>
+			<div class="detail-stat">
+				<span class="stat-label">Profit</span>
+				<span class="stat-value {{numberClass(fundDtl.netP)}}">{{fundDtl.net | currency : '₹': 0}} <span class="text-sm">{{fundDtl.netP | number : 2 }}%</span></span>
+			</div>
+			<div class="detail-stat">
+				<span class="stat-label">Today</span>
+				<span class="stat-value {{numberClass(fundDtl.previousValueP)}}">{{fundDtl.previousValue | currency : '₹' : 0}}</span>
+				<span class="stat-chip" ng-class="{up: fundDtl.previousValueP >= 0, down: fundDtl.previousValueP < 0}">{{fundDtl.previousValueP >= 0 ? '+' : ''}}{{fundDtl.previousValueP | number : 2}}%</span>
+			</div>
+			<div class="detail-stat" ng-if="fundDtl.realized > 0">
+				<span class="stat-label">Realized</span>
+				<span class="stat-value {{numberClass(fundDtl.realized)}}">{{fundDtl.realized | currency : '₹': 0}}</span>
+			</div>
 			</div>
 		</div>
 
-		<div class="detail-body">
+			<div class="detail-body">
 			<div class="txn-table-wrap">
 				<div class="txn-head">
 					<div>Date</div>
+					<div>Type</div>
 					<div>Qty / Price</div>
 					<div>Investment</div>
 					<div>Value</div>
@@ -154,9 +160,13 @@
 					<div>Today</div>
 				</div>
 
-				<div ng-repeat="item in fundDtl.portfolio">
+				<div ng-repeat="item in fundDtl.portfolio | orderBy:'-date':true">
 				<div class="txn-row" ng-if="item.quantity != 0">
 					<div class="cell-date">{{item.date | date}}</div>
+					<div class="cell-type">
+						<span class="txn-badge txn-badge-buy" ng-if="item.quantity > 0">BUY</span>
+						<span class="txn-badge txn-badge-sell" ng-if="item.quantity < 0">SELL</span>
+					</div>
 					<div class="cell-qty">
 						{{item.quantity | number: 3}}
 						<div class="sub">@ {{item.price | number : 3 }}</div>
@@ -168,13 +178,15 @@
 						<div class="sub {{numberClass(item.netP)}}">{{item.netP | number : 2 }}%</div>
 					</div>
 					<div class="cell-today {{numberClass(fundDtl.previousValueP)}}">
-						{{item.previousValue | currency : '₹' : 0 }} <span ng-if="item.investment < 0">Sold</span>
+						{{item.previousValue | currency : '₹' : 0 }}
 						<div class="sub {{numberClass(fundDtl.previousValueP)}}">{{item.previousValueP | number : 2 }}%</div>
 					</div>
 
 					<div class="txn-mobile-card">
 						<div class="txn-mobile-head">
 							<span class="txn-mobile-date">{{item.date | date}}</span>
+							<span class="txn-badge txn-badge-buy" ng-if="item.quantity > 0">BUY</span>
+							<span class="txn-badge txn-badge-sell" ng-if="item.quantity < 0">SELL</span>
 							<span class="txn-mobile-qty">{{item.quantity | number: 3}} @ {{item.price | number : 3}}</span>
 						</div>
 						<div class="txn-mobile-figures">
@@ -192,15 +204,16 @@
 								Profit {{item.net | currency : '₹' : 0 }} · {{item.netP | number : 2 }}%
 							</span>
 							<span class="pill" ng-class="numberClass(fundDtl.previousValueP) === 'text-success' ? 'up' : 'down'">
-								Today {{item.previousValue | currency : '₹' : 0 }}<span ng-if="item.investment < 0">, Sold</span> · {{item.previousValueP | number : 2 }}%
+								Today {{item.previousValue | currency : '₹' : 0 }} · {{item.previousValueP | number : 2 }}%
 							</span>
 						</div>
 					</div>
 				</div>
 				</div>
 
-				<div class="txn-summary">
+			<div class="txn-summary">
 					<div class="txn-summary-title">Summary</div>
+					<div class="txn-summary-spacer"></div>
 					<div class="txn-summary-spacer"></div>
 					<div><span class="cell-label">Investment</span>{{fundDtl.investment | currency : '₹': 0}}</div>
 					<div class="{{numberClass(fundDtl.netP)}}"><span class="cell-label">Value</span>{{fundDtl.value | currency : '₹' : 0 }}</div>

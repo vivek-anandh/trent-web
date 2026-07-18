@@ -12,27 +12,28 @@
       <button type="button" class="btn btn-outline-primary" ng-click="refreshData()">Refresh</button>
     </div>
 
-    <div class="stats-summary row g-3" ng-show="summary.totalInvestment > 0">
-      <div class="col-md-4">
-        <div class="stat-card p-3 border rounded bg-light">
-          <div class="stat-label text-muted small">Total Investment</div>
-          <div class="stat-value fw-bold fs-4">{{formatCurrency(summary.totalInvestment)}}</div>
-        </div>
+    <div class="stat-strip stat-strip-4" ng-show="summary.totalInvestment > 0">
+      <div class="stat-card">
+        <span class="stat-label">Investment</span>
+        <span class="stat-value">{{formatCurrency(summary.totalInvestment)}}</span>
       </div>
-      <div class="col-md-4">
-        <div class="stat-card p-3 border rounded bg-light">
-          <div class="stat-label text-muted small">Current Value</div>
-          <div class="stat-value fw-bold fs-4">{{formatCurrency(summary.totalValue)}}</div>
-        </div>
+      <div class="stat-card">
+        <span class="stat-label">Current Value</span>
+        <span class="stat-value">{{formatCurrency(summary.totalValue)}}</span>
       </div>
-      <div class="col-md-4">
-        <div class="stat-card p-3 border rounded bg-light" ng-class="{'text-success': summary.gain >= 0, 'text-danger': summary.gain < 0}">
-          <div class="stat-label text-muted small">Gain/Loss</div>
-          <div class="stat-value fw-bold fs-4">{{formatCurrency(summary.gain)}}</div>
-          <div class="stat-chip small" ng-class="{up: summary.gainPercent >= 0, down: summary.gainPercent < 0}">
-            {{summary.gainPercent >= 0 ? '+' : ''}}{{summary.gainPercent | number:2}}%
-          </div>
-        </div>
+      <div class="stat-card">
+        <span class="stat-label">Gain / Loss</span>
+        <span class="stat-value {{numberClass(summary.gain)}}">{{formatCurrency(summary.gain)}}</span>
+        <span class="stat-chip" ng-class="{up: summary.gainPercent >= 0, down: summary.gainPercent < 0}">
+          {{summary.gainPercent >= 0 ? '+' : ''}}{{summary.gainPercent | number:2}}%
+        </span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Today</span>
+        <span class="stat-value {{numberClass(summary.todayChange)}}">{{formatCurrency(summary.todayChange)}}</span>
+        <span class="stat-chip" ng-class="{up: summary.todayChangeP >= 0, down: summary.todayChangeP < 0}">
+          {{summary.todayChangeP >= 0 ? '+' : ''}}{{summary.todayChangeP | number:2}}%
+        </span>
       </div>
     </div>
   </div>

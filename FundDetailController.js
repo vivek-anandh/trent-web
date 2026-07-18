@@ -1,6 +1,5 @@
 app.controller('FundDetailController', ['$scope', '$http', '$routeParams', function($scope, $http, $routeParams) {
 
-    $scope.Math = Math;
     $scope.loading = true;
     $scope.error = null;
     $scope.timePeriod = 'quarterly';
@@ -20,6 +19,14 @@ app.controller('FundDetailController', ['$scope', '$http', '$routeParams', funct
     $scope.formatCurrency = function(value) {
         if (value == null || isNaN(value)) return '₹0';
         return '₹' + Math.abs(value).toLocaleString('en-IN', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+    };
+
+    $scope.numberClass = function(value) {
+        if (value) {
+            value = Number(value);
+            return value >= 0 ? 'text-success' : 'text-danger';
+        }
+        return '';
     };
 
     $scope.formatDate = function(date) {
@@ -338,6 +345,32 @@ app.controller('FundDetailController', ['$scope', '$http', '$routeParams', funct
         $scope.createCharts();
     }
 
+    // Fetch raw NAV history (DD-MM-YYYY format as expected by calculateFund)
+    function fetchNavRaw(fundId) {
+        var parseRaw = function(responseText) {
+            if (!responseText || typeof responseText !== 'string') return null;
+            try {
+                var body = JSON.parse(responseText);
+                if (body.data && Array.isArray(body.data)) {
+                    return body; // { data: [{date: "DD-MM-YYYY", nav: "123.45"}, ...] }
+                }
+                return null;
+            } catch (e) {
+                return null;
+            }
+        };
+
+        if (typeof fetchApi === 'function') {
+            return fetchApi(fundId)
+                .then(function(response) { return parseRaw(response) || { data: [] }; })
+                .catch(function() { return { data: [] }; });
+        }
+
+        return $http.get('https://api.mfapi.in/mf/' + fundId, { timeout: 15000 })
+            .then(function(response) { return response.data && response.data.data ? response.data : { data: [] }; })
+            .catch(function() { return { data: [] }; });
+    }
+
     // Load fund data
     function loadFundData() {
         var fundId = $routeParams.fundId;
@@ -375,12 +408,35 @@ app.controller('FundDetailController', ['$scope', '$http', '$routeParams', funct
                     }
 
                     fundData.fundId = fundId;
-                    $scope.fund = fundData;
-                    $scope.transactions = fundData.transactions || [];
 
-                    // Fetch NAV history
-                    fetchNavHistory(fundId).then(function(navs) {
+                    // Fetch NAV history (raw format for calculateFund)
+                    fetchNavRaw(fundId).then(function(rawHist) {
                         $scope.$apply(function() {
+                            // Run DashboardController's calculateFund to populate all computed fields
+                            if (rawHist && rawHist.data && rawHist.data.length > 0 && typeof calculateFund === 'function') {
+                                calculateFund(fundData, rawHist);
+                            }
+
+                            $scope.fund = fundData;
+
+                            // Also build processed navs for charts (ascending order)
+                            var navs = [];
+                            if (rawHist && rawHist.data) {
+                                rawHist.data.forEach(function(entry) {
+                                    var nav = parseFloat(entry.nav);
+                                    if (!isNaN(nav)) {
+                                        var dateStr = entry.date;
+                                        if (dateStr instanceof Date) {
+                                            dateStr = dateStr.getFullYear() + '-' +
+                                                ('0' + (dateStr.getMonth() + 1)).slice(-2) + '-' +
+                                                ('0' + dateStr.getDate()).slice(-2);
+                                        }
+                                        navs.push({ date: dateStr, nav: nav });
+                                    }
+                                });
+                                navs.sort(function(a, b) { return new Date(a.date) - new Date(b.date); });
+                            }
+
                             $scope.rawNavs = navs;
                             var periods = generatePeriods($scope.timePeriod, $scope.range);
                             $scope.periodData = buildPeriodData(fundData.transactions, navs, periods);
@@ -406,51 +462,6 @@ app.controller('FundDetailController', ['$scope', '$http', '$routeParams', funct
         };
 
         request.send();
-    }
-
-    function fetchNavHistory(fundId) {
-        if (typeof fetchApi === 'function') {
-            return fetchApi(fundId)
-                .then(function(response) {
-                    if (!response || typeof response !== 'string') return [];
-                    try {
-                        var body = JSON.parse(response);
-                        if (body.data && Array.isArray(body.data)) {
-                            return body.data
-                                .map(function(entry) {
-                                    var nav = parseFloat(entry.nav);
-                                    if (isNaN(nav)) return null;
-                                    return { date: entry.date.split('-').reverse().join('-'), nav: nav };
-                                })
-                                .filter(function(n) { return n !== null; })
-                                .sort(function(a, b) { return new Date(a.date) - new Date(b.date); });
-                        }
-                        return [];
-                    } catch (e) {
-                        console.warn('Failed to parse NAV for ' + fundId, e);
-                        return [];
-                    }
-                })
-                .catch(function(err) {
-                    console.warn('Failed to fetch NAV for ' + fundId, err);
-                    return [];
-                });
-        }
-
-        return $http.get('https://api.mfapi.in/mf/' + fundId, { timeout: 15000 })
-            .then(function(response) {
-                var data = response.data;
-                if (!data.data || !Array.isArray(data.data)) return [];
-                return data.data
-                    .map(function(entry) {
-                        var nav = parseFloat(entry.nav);
-                        if (isNaN(nav)) return null;
-                        return { date: entry.date.split('-').reverse().join('-'), nav: nav };
-                    })
-                    .filter(function(n) { return n !== null; })
-                    .sort(function(a, b) { return new Date(a.date) - new Date(b.date); });
-            })
-            .catch(function() { return []; });
     }
 
     loadFundData();

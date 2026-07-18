@@ -48,6 +48,12 @@ $scope.closeFundDtl = function () {
 	$scope.fundDtl = null;
 };
 
+$scope.goToFundDetail = function ($event, fundId) {
+	if ($event) $event.stopPropagation();
+	var url = window.location.pathname + '#!/fund-detail/' + fundId;
+	window.location.href = url;
+};
+
 $scope.loadFundsDataPromise = function(allFundsData) {
 	var deferred = $q.defer();
 	initaializePortfolioPromise(allFundsData).then((response) => {
