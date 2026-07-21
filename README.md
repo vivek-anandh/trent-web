@@ -1,4 +1,4 @@
-# Trent Web - AngularJS Portfolio Management App
+# Trent Web - AngularJS Portfolio Management web App
 
 A simple AngularJS 1.x application for managing investment portfolios (funds, books, holdings) with performance analytics and charts.
 
