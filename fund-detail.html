@@ -113,7 +113,7 @@
             <div>Today</div>
           </div>
 
-          <div ng-repeat="item in fund.portfolio | orderBy:'-date':true">
+          <div ng-repeat="item in fund.portfolio | orderBy:'-date'">
             <div class="txn-row" ng-if="item.quantity != 0">
               <div class="cell-date">{{item.date | date}}</div>
               <div class="cell-type">
