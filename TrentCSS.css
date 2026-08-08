@@ -312,6 +312,8 @@ hr { border-color: var(--border); opacity: 1; }
   font-size: .78rem;
 }
 
+.fund-card-today .sub { font-size: .68rem; font-weight: 700; margin-left: 2px; }
+
 .pill {
   display: inline-flex;
   align-items: center;

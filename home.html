@@ -81,7 +81,7 @@
 						<i class="bi" ng-class="fund.netP >= 0 ? 'bi-caret-up-fill' : 'bi-caret-down-fill'"></i>{{fund.netP | number : 2}}%
 					</span>
 					<span class="fund-card-today {{numberClass(fund.previousValueP)}}">
-						1d {{fund.previousValue | currency : '₹': 0}} 
+						1d {{fund.previousValue | currency : '₹': 0}} <span class="sub">{{fund.previousValueP >= 0 ? '+' : ''}}{{fund.previousValueP | number : 2}}%</span>
 					</span>
 				</div>
 			</div>

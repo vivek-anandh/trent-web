@@ -630,17 +630,18 @@ app.controller('PortfolioPerformanceController', ['$scope', '$http', '$q', funct
             var fundLabels = [];
             var fundValues = [];
             var totalValue = 0;
-            Object.values(latest.funds).forEach(function(f) {
-                if (f.value > 0) {
-                    fundValues.push(f.value);
-                    totalValue += f.value;
-                }
+            var distFunds = Object.values(latest.funds).filter(function(f) {
+                return f.value > 0;
             });
-            Object.values(latest.funds).forEach(function(f, i) {
-                if (f.value > 0) {
-                    var pct = totalValue > 0 ? ((f.value / totalValue) * 100).toFixed(1) : '0.0';
-                    fundLabels.push(f.fundName + ' (' + pct + '%)');
-                }
+            distFunds.forEach(function(f) {
+                totalValue += f.value;
+            });
+            distFunds.forEach(function(f) {
+                var pct = totalValue > 0 ? ((f.value / totalValue) * 100) : 0;
+                // Exclude funds that round to 0% (negligible residual holdings)
+                if (pct < 0.05) return;
+                fundValues.push(f.value);
+                fundLabels.push(f.fundName + ' (' + pct.toFixed(1) + '%)');
             });
             if (fundLabels.length > 0) {
                 createAndStore('valueDistribution', 'valueDistributionChart', function() {

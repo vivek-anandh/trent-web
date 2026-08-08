@@ -1,4 +1,4 @@
-var prodMode = false;
+var prodMode = true;
 var accessToken  = '';	
 
 // TrentAngularAppController.js or new app.js
