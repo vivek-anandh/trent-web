@@ -537,6 +537,91 @@ hr { border-color: var(--border); opacity: 1; }
   color: var(--down);
 }
 
+/* Gain/Loss drilldown table */
+.gl-head {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr 1fr 1fr 1fr 1.1fr;
+  background: #FAFBFD;
+  border-bottom: 1px solid var(--border);
+  font-size: .7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .03em;
+  color: var(--ink-faint);
+  padding: .6rem .9rem;
+}
+
+.gl-row {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr 1fr 1fr 1fr 1.1fr;
+  padding: .65rem .9rem;
+  border-bottom: 1px solid var(--border);
+  font-size: .83rem;
+  align-items: center;
+  transition: background .1s ease;
+}
+
+.gl-row:last-child { border-bottom: none; }
+.gl-row:hover { background: #FAFBFD; }
+
+.gl-row.inactive { opacity: .45; }
+.gl-row.inactive:hover { background: transparent; }
+.gl-row.inactive .cell-name { font-weight: 600; }
+.gl-row.inactive .cell-inv,
+.gl-row.inactive .cell-val { color: var(--ink-faint); }
+
+.gl-row .sub { font-size: .72rem; color: var(--ink-faint); margin-top: 1px; }
+
+.gl-summary {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr 1fr 1fr 1fr 1.1fr;
+  padding: .75rem .9rem;
+  background: var(--brand-soft);
+  font-weight: 800;
+  font-size: .85rem;
+  color: var(--ink);
+}
+
+@media (max-width: 640px) {
+  .gl-head { display: none; }
+
+  .gl-row {
+    display: block;
+    padding: .9rem 1rem;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
+    margin-bottom: .65rem;
+  }
+
+  .gl-row:last-child { margin-bottom: 0; }
+
+  .gl-row .cell-name { font-weight: 700; margin-bottom: .35rem; }
+
+  .gl-row > .cell-inv,
+  .gl-row > .cell-val,
+  .gl-row > .cell-u,
+  .gl-row > .cell-r,
+  .gl-row > .cell-t {
+    display: inline-block;
+    margin-right: .8rem;
+  }
+
+  .gl-row > .cell-u,
+  .gl-row > .cell-r,
+  .gl-row > .cell-t { margin-top: .15rem; }
+
+  .gl-summary {
+    display: block;
+    padding: .9rem 1rem;
+    border-radius: var(--radius);
+    margin-top: .65rem;
+  }
+
+  .gl-summary > div { display: inline-block; margin-right: .8rem; }
+}
+
 .cell-label {
   display: none;
 }

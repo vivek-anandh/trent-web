@@ -1,4 +1,4 @@
-app.controller('FundDetailController', ['$scope', '$http', '$routeParams', function($scope, $http, $routeParams) {
+app.controller('FundDetailController', ['$scope', '$routeParams', function($scope, $routeParams) {
 
     $scope.loading = true;
     $scope.error = null;
@@ -360,14 +360,8 @@ app.controller('FundDetailController', ['$scope', '$http', '$routeParams', funct
             }
         };
 
-        if (typeof fetchApi === 'function') {
-            return fetchApi(fundId)
-                .then(function(response) { return parseRaw(response) || { data: [] }; })
-                .catch(function() { return { data: [] }; });
-        }
-
-        return $http.get('https://api.mfapi.in/mf/' + fundId, { timeout: 15000 })
-            .then(function(response) { return response.data && response.data.data ? response.data : { data: [] }; })
+        return fetchApi(fundId)
+            .then(function(response) { return parseRaw(response) || { data: [] }; })
             .catch(function() { return { data: [] }; });
     }
 

@@ -212,13 +212,19 @@ function initaializePortfolioPromise(data) {
     return new Promise(function (resolve, reject) {
         let fundIds = [];
         let fundHist = {};
+        let prunedRealized = 0;
         Object.keys(data).forEach(function (fundId) {
-		if(isValidQuantity(data[fundId])){
-			fundIds.push(fundId);
-		}
-		else {
-			delete data[fundId];
-		}
+            // Compute FIFO realized for every fund up front (single source of truth in FundCalcService),
+            // including fully-sold funds that are pruned from the display below.
+            let fund = data[fundId];
+            let breakdown = computeFundBreakdown(fund.portfolio || []);
+            fund.realized = breakdown.realized.toFixed(0);
+            if (isValidQuantity(fund)) {
+                fundIds.push(fundId);
+            } else {
+                prunedRealized += breakdown.realized;
+                delete data[fundId];
+            }
         });
 
 	let requests = fundIds.map(fundId => navHistPromise(fundId, fundHist));
@@ -229,6 +235,8 @@ function initaializePortfolioPromise(data) {
                 responses.forEach(response => { fundHist[response.fundId] = response.hist; });
                 calculatePortfolio(data, fundHist);
                 var funds = outputDecorator(data);
+                funds.totals.realized += prunedRealized;
+                funds.totals.gross = (funds.totals.realized + funds.totals.value - funds.totals.investment).toFixed(0);
                 resolve(funds);
             })
             .catch(error => reject('Error while fectching latest NAV history' + error));
@@ -321,51 +329,14 @@ function sell(fund) {
         }
     });
 
+    // Single source of truth: FIFO matching lives in FundCalcService.js
+    let breakdown = computeFundBreakdown(fund.portfolio);
+    fund.realized = breakdown.realized.toFixed(0);
 
-
-    //sepearte as buy and sell
-    let sellRecords = [];
-    let buyRecords = [];
-
-    for (let i = 0; i < fund.portfolio.length; i++) {
-        if (fund.portfolio[i].quantity > 0) {
-            buyRecords.push(fund.portfolio[i]);
-        }
-        else {
-            sellRecords.push(fund.portfolio[i]);
-        }
-    }
-    
-    buyRecords.reverse();
-    let realized = 0;
-    for (let i = 0; i < sellRecords.length; i++) {
-        let sell = sellRecords[i];
-        if (sell.quantity < 0) {
-            for (let j = 0; j < buyRecords.length; j++) {
-                let buy = buyRecords[j];
-                if (buy.quantity >= (sell.quantity * -1)) {
-                    //relalized 
-                    realized += ((sell.quantity * -1) * (sell.price - buy.price));
-
-                    buy.quantity += sell.quantity;
-                    buy.quantity = Number(buy.quantity.toFixed(4));
-                    sell.quantity = 0;
-
-                }
-                else if (buy.quantity < (sell.quantity * -1)) {
-                    //relalized 
-                    realized += ((buy.quantity) * (sell.price - buy.price));
-
-                    sell.quantity += buy.quantity;
-                    sell.quantity = Number(sell.quantity.toFixed(4));
-                    buy.quantity = 0;
-
-                }
-            }
-        }
-    }
-    fund.realized = realized.toFixed(0);
-    //console.log('Realized for fund ' + fund.name + ' is ' + fund.realized);
+    // Keep only remaining (unsold) buy lots so calculateFund values only held units
+    fund.portfolio = breakdown.remainingBuys.map(function (b) {
+        return { fundId: fund.fundId, quantity: b.quantity, price: b.price, date: b.date };
+    });
 }
 
 
@@ -486,79 +457,6 @@ function calculatePortfolio(funds, fundHist) {
         }
     });
 }
-
-function fetchApi(fundId) {
-	
-	return new Promise(function (resolve, reject) {
-		try {
-	        var apiKey = 'nav_hist_' + fundId;
-            
-            var cachedApi = localStorage.getItem(apiKey);
-            
-            if(cachedApi) {
-                cachedApi = JSON.parse(cachedApi);
-                var now = Date.now();
-                if(cachedApi.expiresAt > now) {
-					resolve(cachedApi.content);
-                    return;
-                }
-                else {
-                    localStorage.removeItem(apiKey);
-                    cachedApi = null;
-                }
-            }    
-            
-            if(!cachedApi) {
-                // Creating the XMLHttpRequest object
-                var request = new XMLHttpRequest();
-                var ttlMs = 24 * 60 * 60 * 1000; // 24 hours TTL
-                
-                var mfApi  = "https://api.mfapi.in/mf/" + fundId; 
-                // Instantiating the request object
-                request.open("GET", mfApi);
-
-                // Defining event listener for readystatechange event
-                request.onreadystatechange = function() {
-                    // Check if the request is compete and was successful
-                    if(this.readyState === 4) {
-                        if (this.status === 200) {
-                            // Inserting the response from server into an HTML element
-                            var record = {
-                                savedAt: new Date().toISOString(),
-                                expiresAt: Date.now() + ttlMs,
-                                content: this.responseText
-                            };
-                            localStorage.setItem(apiKey, JSON.stringify(record));
-                            resolve(this.responseText);
-                        } else {
-                            reject('HTTP ' + this.status + ': ' + this.statusText);
-                        }
-                    }
-                };
-                
-                request.onerror = function() {
-                    reject('Network error');
-                };
-                
-                request.ontimeout = function() {
-                    reject('Timeout');
-                };
-                
-                request.timeout = 15000;
-
-                // Sending the request to the server
-                request.send();
-            }
-			
-      } catch (e) {
-            console.error(e);
-            reject('Error in API Call');
-        }
-	});		
-
-
-}
-
 
 function navHistPromise(fundId) {
     return new Promise(function (resolve, reject) {

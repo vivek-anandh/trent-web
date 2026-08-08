@@ -11,8 +11,12 @@ app.controller('PortfolioPerformanceController', ['$scope', '$http', '$q', funct
     // Data
     $scope.rawData = [];
     $scope.periodData = [];
-    $scope.summary = { totalInvestment: 0, totalValue: 0, gain: 0, gainPercent: 0, todayChange: 0, todayChangeP: 0 };
+    $scope.summary = { totalInvestment: 0, totalValue: 0, gain: 0, gainPercent: 0, realized: 0, grossGain: 0, grossGainPercent: 0, todayChange: 0, todayChangeP: 0 };
     $scope.fundPerformance = [];
+    $scope.fundGainLoss = [];
+
+    // Legacy realized gain carried from before the book (hardcoded on home dashboard too)
+    var LEGACY_REALIZED = 300000;
 
     // Chart instances
     var charts = {};
@@ -123,63 +127,35 @@ app.controller('PortfolioPerformanceController', ['$scope', '$http', '$q', funct
         return periods;
     }
 
-// Get NAV history for a fund (uses global fetchApi from DashboardController with 24h localStorage caching)
+// Get NAV history for a fund (uses shared fetchApi from NavHistoryService with daily 6am localStorage caching)
     function fetchNavHistory(fundId) {
-        // Use the global fetchApi from DashboardController.js which handles caching
-        if (typeof fetchApi === 'function') {
-            return fetchApi(fundId)
-                .then(function(response) {
-                    // Validate response before parsing
-                    if (!response || typeof response !== 'string') {
-                        console.warn('Invalid response from fetchApi for ' + fundId, response);
-                        return { fundId: fundId, navs: [] };
-                    }
-                    var body;
-                    try {
-                        body = JSON.parse(response);
-                    } catch (e) {
-                        console.warn('Failed to parse NAV response for ' + fundId, response);
-                        return { fundId: fundId, navs: [] };
-                    }
-                    var navs = [];
-                    if (body.data && Array.isArray(body.data)) {
-                        body.data.forEach(function(entry) {
-                            var nav = parseFloat(entry.nav);
-                            if (!isNaN(nav)) {
-                                navs.push({
-                                    date: entry.date.split('-').reverse().join('-'),
-                                    nav: nav
-                                });
-                            }
-                        });
-                        navs.sort(function(a, b) { return new Date(a.date) - new Date(b.date); });
-                    }
-                    return { fundId: fundId, navs: navs };
-                })
-                .catch(function(err) {
-                    console.warn('Failed to fetch NAV for ' + fundId, err);
-                    return { fundId: fundId, navs: [] };
-                });
-        }
-
-        // Fallback if fetchApi not available (should not happen in normal flow)
-        return $http.get('https://api.mfapi.in/mf/' + fundId, { timeout: 15000 })
+        return fetchApi(fundId)
             .then(function(response) {
-                var data = response.data;
-                if (!data.data || !Array.isArray(data.data)) {
+                // Validate response before parsing
+                if (!response || typeof response !== 'string') {
+                    console.warn('Invalid response from fetchApi for ' + fundId, response);
+                    return { fundId: fundId, navs: [] };
+                }
+                var body;
+                try {
+                    body = JSON.parse(response);
+                } catch (e) {
+                    console.warn('Failed to parse NAV response for ' + fundId, response);
                     return { fundId: fundId, navs: [] };
                 }
                 var navs = [];
-                data.data.forEach(function(entry) {
-                    var nav = parseFloat(entry.nav);
-                    if (!isNaN(nav)) {
-                        navs.push({
-                            date: entry.date.split('-').reverse().join('-'),
-                            nav: nav
-                        });
-                    }
-                });
-                navs.sort(function(a, b) { return new Date(a.date) - new Date(b.date); });
+                if (body.data && Array.isArray(body.data)) {
+                    body.data.forEach(function(entry) {
+                        var nav = parseFloat(entry.nav);
+                        if (!isNaN(nav)) {
+                            navs.push({
+                                date: entry.date.split('-').reverse().join('-'),
+                                nav: nav
+                            });
+                        }
+                    });
+                    navs.sort(function(a, b) { return new Date(a.date) - new Date(b.date); });
+                }
                 return { fundId: fundId, navs: navs };
             })
             .catch(function(err) {
@@ -305,10 +281,66 @@ app.controller('PortfolioPerformanceController', ['$scope', '$http', '$q', funct
         return perf;
     }
 
+    // Per-fund breakdown combining unrealized + realized gain (mirrors home dashboard Gross)
+    function buildFundGainLoss(funds, navMap) {
+        var rows = [];
+        var totalUnrealized = 0;
+        var totalRealized = 0;
+        var totalInvestment = 0;
+        var totalValue = 0;
+        funds.forEach(function(fund) {
+            var navs = navMap[fund.fundId];
+            if (!navs || navs.length === 0) return;
+
+            var latestNav = navs[navs.length - 1].nav;
+            var breakdown = computeFundBreakdown(fund.portfolio || []);
+            var basis = remainingBasis(breakdown);
+            var realized = breakdown.realized;
+
+            totalRealized += realized;
+
+            // Rounding artifacts can leave tiny residual units (e.g. 0.02 units / Rs 1).
+            // If the remaining investment is less than Rs 5, treat the fund as fully sold.
+            var fullySold = basis.cost < 5;
+
+            var unrealized = 0;
+            var unrealizedPct = 0;
+            var currentValue = 0;
+            var investment = 0;
+            if (!fullySold && basis.qty > 0) {
+                investment = basis.cost;
+                currentValue = basis.qty * latestNav;
+                unrealized = currentValue - basis.cost;
+                unrealizedPct = basis.cost > 0 ? (unrealized / basis.cost) * 100 : 0;
+
+                totalUnrealized += unrealized;
+                totalInvestment += basis.cost;
+                totalValue += currentValue;
+            }
+
+            var totalGain = unrealized + realized;
+            var totalPct = investment > 0 ? (totalGain / investment) * 100 : 0;
+
+            rows.push({
+                fundId: fund.fundId,
+                fundName: fund.fundName,
+                investment: investment,
+                value: currentValue,
+                unrealized: unrealized,
+                unrealizedPct: unrealizedPct,
+                realized: realized,
+                totalGain: totalGain,
+                totalPct: totalPct,
+                fullySold: fullySold
+            });
+        });
+        return { rows: rows, totalInvestment: totalInvestment, totalValue: totalValue, totalUnrealized: totalUnrealized, totalRealized: totalRealized, totalGain: totalUnrealized + totalRealized };
+    }
+
     // Build summary from period data - use FINAL period (current totals), not sum
     function buildSummary(periodData, funds, navMap) {
         if (!periodData || periodData.length === 0) {
-            return { totalInvestment: 0, totalValue: 0, gain: 0, gainPercent: 0, todayChange: 0, todayChangeP: 0 };
+            return { totalInvestment: 0, totalValue: 0, gain: 0, gainPercent: 0, realized: 0, grossGain: 0, grossGainPercent: 0, todayChange: 0, todayChangeP: 0 };
         }
         
         // Use latest period for current totals
@@ -342,6 +374,16 @@ app.controller('PortfolioPerformanceController', ['$scope', '$http', '$q', funct
         var gain = totalValue - totalInvestment;
         var gainPercent = totalInvestment > 0 ? (gain / totalInvestment) * 100 : 0;
 
+        // Realized gain (FIFO per fund) + legacy realized from before the book
+        var realized = 0;
+        if (funds) {
+            funds.forEach(function(f) {
+                realized += computeFundBreakdown(f.portfolio || []).realized;
+            });
+        }
+        var grossGain = gain + realized;
+        var grossGainPercent = totalInvestment > 0 ? (grossGain / totalInvestment) * 100 : 0;
+
         // Compute Today's total change across all funds
         var todayChange = 0;
         var todayValueYesterday = 0;
@@ -370,6 +412,9 @@ app.controller('PortfolioPerformanceController', ['$scope', '$http', '$q', funct
             totalValue: totalValue,
             gain: gain,
             gainPercent: gainPercent,
+            realized: realized,
+            grossGain: grossGain,
+            grossGainPercent: grossGainPercent,
             todayChange: todayChange,
             todayChangeP: todayChangeP
         };
@@ -682,10 +727,22 @@ app.controller('PortfolioPerformanceController', ['$scope', '$http', '$q', funct
         $scope.expandedChart = null;
     };
 
+    // Gain/Loss drilldown panel
+    $scope.showGainLossDtl = false;
+    $scope.openGainLossDtl = function() {
+        $scope.showGainLossDtl = true;
+    };
+    $scope.closeGainLossDtl = function() {
+        $scope.showGainLossDtl = false;
+    };
+
     // ESC key to close overlay
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape' && $scope.expandedChart) {
             $scope.$apply(function() { $scope.collapseChart(); });
+        }
+        if (e.key === 'Escape' && $scope.showGainLossDtl) {
+            $scope.$apply(function() { $scope.closeGainLossDtl(); });
         }
     });
 
@@ -756,6 +813,19 @@ app.controller('PortfolioPerformanceController', ['$scope', '$http', '$q', funct
                     $scope.summary = buildSummary($scope.periodData, funds, navMap);
                     $scope.fundPerformance = calculateFundPerformance(funds, navMap);
 
+                    // Per-fund gain/loss breakdown (unrealized + realized) for drilldown
+                    var breakdown = buildFundGainLoss(funds, navMap);
+                    breakdown.rows.sort(function(a, b) { return Math.abs(b.totalGain) - Math.abs(a.totalGain); });
+                    $scope.fundGainLoss = breakdown.rows;
+                    $scope.gainLossTotals = {
+                        totalInvestment: breakdown.totalInvestment,
+                        totalValue: breakdown.totalValue,
+                        totalUnrealized: breakdown.totalUnrealized,
+                        totalRealized: breakdown.totalRealized,
+                        totalGain: breakdown.totalGain,
+                        legacyRealized: LEGACY_REALIZED
+                    };
+
                     $scope.loading = false;
                     $scope.createCharts();
                 });
@@ -791,6 +861,27 @@ app.controller('PortfolioPerformanceController', ['$scope', '$http', '$q', funct
             { fundId: 'F002', fundName: 'Beta Fund', investment: 80000, value: 72000, gainLoss: -8000, gainPercent: -10 },
             { fundId: 'F003', fundName: 'Gamma Fund', investment: 50000, value: 55000, gainLoss: 5000, gainPercent: 10 }
         ];
+        $scope.fundGainLoss = $scope.fundPerformance.map(function(fp) {
+            return {
+                fundId: fp.fundId,
+                fundName: fp.fundName,
+                investment: fp.investment,
+                value: fp.value,
+                unrealized: fp.gainLoss,
+                unrealizedPct: fp.gainPercent,
+                realized: 0,
+                totalGain: fp.gainLoss,
+                totalPct: fp.gainPercent
+            };
+        });
+        $scope.gainLossTotals = {
+            totalInvestment: $scope.summary.totalInvestment,
+            totalValue: $scope.summary.totalValue,
+            totalUnrealized: $scope.summary.gain,
+            totalRealized: 0,
+            totalGain: $scope.summary.gain,
+            legacyRealized: LEGACY_REALIZED
+        };
     }
 
     // Initialize
